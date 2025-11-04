@@ -80,17 +80,19 @@ const nextConfig = {
   },
 
   // ✅ Transpile only for truly necessary legacy browsers (removes polyfills for modern browsers)
-  transpilePackages: [],  // ✅ Headers: Security, CSP, COOP voor Firebase Auth
+  transpilePackages: [],
+
+  // ✅ Headers: Broadly compatible, safe baseline settings
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: [
-          // Smart caching: Short cache for HTML on CDN, but revalidate on browser
-          { key: "Cache-Control", value: "public, max-age=0, s-maxage=300, must-revalidate" },
+          // No cache for development
+          { key: "Cache-Control", value: "no-store, no-cache, must-revalidate" },
 
-          // Security headers
-          { key: "X-Frame-Options", value: "DENY" },
+          // Security headers (Lowest safe settings)
+          { key: "X-Frame-Options", value: "SAMEORIGIN" }, // Allows framing by your own site
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "Permissions-Policy", value: "geolocation=(), microphone=(), camera=()" },
@@ -98,34 +100,31 @@ const nextConfig = {
           // HSTS: Force HTTPS for 1 year
           { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
 
-          // CSP: Firebase WebSocket + Analytics + Trusted Types
+          // CSP: Permissive policy allowing 'self', https:, data:, and unsafe-inline/eval
           {
             key: "Content-Security-Policy",
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' https://www.googletagmanager.com https://*.google-analytics.com https://apis.google.com https://*.firebaseapp.com https://*.firebasedatabase.app https://*.firebaseio.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https:",
               "style-src 'self' 'unsafe-inline'",
-              "img-src 'self' data: https: http: blob: https://www.googletagmanager.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+              "img-src 'self' data: blob: https:",
               "font-src 'self' data:",
-              "connect-src 'self' https://*.firebasedatabase.app wss://*.firebasedatabase.app https://apis.google.com https://*.googleapis.com https://*.google-analytics.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasestorage.app",
-              "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com https://twitter.com https://github.com https://login.microsoftonline.com https://appleid.apple.com",
+              "connect-src 'self' https: wss:",
+              "frame-src 'self' https:",
               "object-src 'none'",
               "base-uri 'self'",
               "form-action 'self'",
-              "frame-ancestors 'none'",
+              "frame-ancestors 'self'",
               "upgrade-insecure-requests",
-              "require-trusted-types-for 'script'",
-              "trusted-types default"
             ].join("; ")
           },
 
-          // COOP set to same-origin-allow-popups: preserves opener relationship for Firebase Auth popups
-          // This allows window.closed checks to work correctly without severing the connection
+          // COOP for Firebase Auth popups
           { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
         ],
       },
-      // Static assets: Long-term caching
+      // Static assets: Long-term immutable caching
       {
         source: "/:path*.(js|css|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)",
         headers: [
