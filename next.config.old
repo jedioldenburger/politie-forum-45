@@ -1,0 +1,176 @@
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Enforce React's strict checks in development
+  reactStrictMode: true,
+
+  // Hide the "X-Powered-By: Next.js" header for security
+  poweredByHeader: false,
+
+  // ✅ T1: Force trailing slash for canonical consistency
+  trailingSlash: true,
+
+  // ✅ Turbopack configuration for faster builds
+  turbopack: {
+    resolveAlias: {
+      canvas: './empty-module.ts',
+    },
+  },
+
+  // ✅ Output optimization
+  compress: true,
+  generateEtags: true,
+  productionBrowserSourceMaps: false,
+  // Note: swcMinify is enabled by default in Next.js 15+
+
+  // ✅ Image Optimization
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 31536000, // 1 year cache for static images
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    qualities: [75, 85, 90, 100], // ✅ Explicitly configure quality values for Next.js 16
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    unoptimized: false,
+    // ✅ Modern remotePatterns (replaces deprecated domains)
+    remotePatterns: [
+      // Local dev
+      { protocol: 'http', hostname: 'localhost' },
+      { protocol: 'https', hostname: 'localhost' },
+
+      // Firebase hosting
+      { protocol: 'https', hostname: '*.firebaseapp.com' },
+      { protocol: 'https', hostname: '*.web.app' },
+
+      // Production domains
+      { protocol: 'https', hostname: 'politie-forum.nl' },
+      { protocol: 'https', hostname: 'www.politie-forum.nl' },
+
+      // Vercel deployments
+      { protocol: 'https', hostname: '*.vercel.app' },
+
+      // Firebase Storage
+      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
+
+      // External CDN sources
+      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
+      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
+      { protocol: 'https', hostname: 'cdn.discordapp.com' },
+      { protocol: 'https', hostname: 'i.imgur.com' },
+      { protocol: 'https', hostname: 'cdn.pixabay.com' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
+  },
+
+  // ✅ Ignore build-time linting & TS errors during development
+  eslint: { ignoreDuringBuilds: true },
+  typescript: { ignoreBuildErrors: true },
+  // ✅ Compiler optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? {
+      exclude: ['error', 'warn'], // Keep console.error and console.warn in production
+    } : false,
+    // Remove React properties and debug info in production (includes local paths cleanup)
+    reactRemoveProperties: process.env.NODE_ENV === 'production',
+  },
+
+  // ✅ Experimental optimizations
+  experimental: {
+    optimizePackageImports: ['lucide-react', 'firebase/app', 'firebase/auth', 'firebase/database'],
+  },
+
+  // ✅ Transpile only for truly necessary legacy browsers (removes polyfills for modern browsers)
+  transpilePackages: [],  // ✅ Headers: Security, CSP, COOP voor Firebase Auth
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          // Smart caching: No cache for HTML, cache static assets
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+
+          // Security headers
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-XSS-Protection", value: "1; mode=block" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "geolocation=(), microphone=(), camera=()" },
+
+          // HSTS: Force HTTPS for 1 year
+          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
+
+          // CSP: Firebase WebSocket + Analytics + Trusted Types
+          {
+            key: "Content-Security-Policy",
+            value: [
+              "default-src 'self'",
+              "script-src 'self' 'unsafe-eval' https://www.googletagmanager.com https://*.google-analytics.com https://apis.google.com https://*.firebaseapp.com https://*.firebasedatabase.app https://*.firebaseio.com",
+              "style-src 'self' 'unsafe-inline'",
+              "img-src 'self' data: https: http: blob: https://www.googletagmanager.com https://*.tile.openstreetmap.org https://tile.openstreetmap.org",
+              "font-src 'self' data:",
+              "connect-src 'self' https://*.firebasedatabase.app wss://*.firebasedatabase.app https://apis.google.com https://*.googleapis.com https://*.google-analytics.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebasestorage.app",
+              "frame-src 'self' https://*.firebaseapp.com https://accounts.google.com https://www.facebook.com https://twitter.com https://github.com https://login.microsoftonline.com https://appleid.apple.com",
+              "object-src 'none'",
+              "base-uri 'self'",
+              "form-action 'self'",
+              "frame-ancestors 'none'",
+              "upgrade-insecure-requests",
+              "require-trusted-types-for 'script'",
+              "trusted-types default"
+            ].join("; ")
+          },
+
+          // COOP set to same-origin-allow-popups: preserves opener relationship for Firebase Auth popups
+          // This allows window.closed checks to work correctly without severing the connection
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
+          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+        ],
+      },
+      // Static assets: Long-term caching
+      {
+        source: "/:path*.(js|css|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+    ];
+  },
+
+  // ✅ SEO-friendly redirects
+  async redirects() {
+    return [
+      // Trailing slash enforcement: redirect non-trailing to trailing
+      {
+        source: "/:path((?!.*\\.).*[^/]$)",
+        destination: "/:path/",
+        permanent: true,
+      },
+      // www → non-www redirect
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.politie-forum.nl",
+          },
+        ],
+        destination: "https://politie-forum.nl/:path*",
+        permanent: true,
+      },
+      // Vercel preview domain → production domain
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "politie-forum-45.vercel.app",
+          },
+        ],
+        destination: "https://politie-forum.nl/:path*",
+        statusCode: 301,
+      },
+    ];
+  },
+};
+
+module.exports = nextConfig;

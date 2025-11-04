@@ -1,0 +1,53 @@
+{
+  "rules": {
+    ".read": true,
+    ".write": true,
+
+    "users": {
+      "$userId": {
+        ".read": true,
+        ".write": true
+      }
+    },
+
+    "categories": {
+      ".read": true,
+      ".write": true
+    },
+
+    "topics": {
+      ".read": true,
+      ".write": true
+    },
+
+    "posts": {
+      ".read": true,
+      ".write": true
+    },
+
+    "comments": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["articleSlug", "authorId"],
+      "$articleSlug": {
+        ".indexOn": ["createdAt", "authorId"]
+      }
+    },
+
+    "notifications": {
+      ".read": true,
+      ".write": true
+    },
+
+    "news": {
+      ".read": true,
+      ".write": true,
+      ".indexOn": ["publishedAt", "slug"]
+    },
+
+    "rss": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

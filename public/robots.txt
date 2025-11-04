@@ -1,0 +1,26 @@
+# Robots.txt for Politie Forum Nederland
+# Generated: 2025-10-28T05:21:07+00:00
+
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: https://politie-forum.nl/sitemap.xml
+Sitemap: https://politie-forum.nl/news-sitemap.xml
+
+# Disallow admin and API routes
+Disallow: /admin
+Disallow: /api/
+
+# Disallow user authentication pages
+Disallow: /login
+Disallow: /register
+
+# Allow crawling of public content
+Allow: /nieuws/
+Allow: /forum/
+Allow: /categorieen/
+Allow: /crime-map-nederland
+
+# Crawl delay (optional, be nice to servers)
+Crawl-delay: 1

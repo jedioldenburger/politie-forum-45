@@ -1,0 +1,1895 @@
+"use client";
+
+import NewsArticleClient from "@/components/NewsArticleClient";
+import { useParams } from "next/navigation";
+
+export default function NewsArticlePage() {
+  const params = useParams();
+  const slug = params.slug as string;
+
+  return <NewsArticleClient article={null} slug={slug} />;
+}
+  const { currentUser, userData } = useAuth();
+  const [comment, setComment] = useState("");
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<
+    Array<{ url: string; file: File }>
+  >([]);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [shareMenuOpen, setShareMenuOpen] = useState<string | null>(null);
+
+  const emojis = [
+    "😊",
+    "👍",
+    "❤️",
+    "😂",
+    "🎉",
+    "👏",
+    "🔥",
+    "💯",
+    "✨",
+    "🚔",
+    "👮",
+    "⚖️",
+  ];
+
+  // Image upload handler with validation
+  const handleImageUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    const file = files[0];
+    const maxSize = 1024 * 1024; // 1MB
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    // Validate file type
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError(
+        "❌ Invalid file type. Only JPG, PNG, GIF, and WebP images are allowed."
+      );
+      setTimeout(() => setUploadError(null), 5000);
+      return;
+    }
+
+    // Validate file size
+    if (file.size > maxSize) {
+      setUploadError(
+        `❌ File too large! Maximum size is 1MB. Your file: ${(
+          file.size /
+          1024 /
+          1024
+        ).toFixed(2)}MB`
+      );
+      setTimeout(() => setUploadError(null), 5000);
+      return;
+    }
+
+    // Create preview URL
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageUrl = e.target?.result as string;
+      setUploadedImages([...uploadedImages, { url: imageUrl, file }]);
+
+      // Auto-insert image markdown into comment
+      const imageName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
+      setComment(
+        comment + (comment ? "\n" : "") + `![${imageName}](${imageUrl})`
+      );
+      setUploadError(null);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Remove uploaded image
+  const removeImage = (index: number) => {
+    const newImages = uploadedImages.filter((_, i) => i !== index);
+    setUploadedImages(newImages);
+
+    // Remove from comment text
+    const imageToRemove = uploadedImages[index];
+    setComment(
+      comment.replace(
+        new RegExp(
+          `!\\[.*?\\]\\(${imageToRemove.url.replace(
+            /[.*+?^${}()|[\]\\]/g,
+            "\\$&"
+          )}\\)`,
+          "g"
+        ),
+        ""
+      )
+    );
+  };
+
+  // Drag and drop handler
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleImageUpload(e.dataTransfer.files);
+  };
+
+  // Enhanced text formatting with markdown-like syntax
+  const formatCommentText = (text: string) => {
+    // Split by lines to handle blockquotes and code blocks
+    const lines = text.split("\n");
+    const elements: React.ReactNode[] = [];
+    let i = 0;
+
+    while (i < lines.length) {
+      const line = lines[i];
+
+      // Code block (```)
+      if (line.trim().startsWith("```")) {
+        const codeLines: string[] = [];
+        i++;
+        while (i < lines.length && !lines[i].trim().startsWith("```")) {
+          codeLines.push(lines[i]);
+          i++;
+        }
+        elements.push(
+          <pre
+            key={i}
+            className="my-3 p-4 bg-slate-900 dark:bg-slate-950 rounded-lg overflow-x-auto border border-slate-700"
+          >
+            <code className="text-sm text-green-400 font-mono">
+              {codeLines.join("\n")}
+            </code>
+          </pre>
+        );
+        i++;
+        continue;
+      }
+
+      // Blockquote (>)
+      if (line.trim().startsWith(">")) {
+        const quoteText = line.replace(/^>\s*/, "");
+        elements.push(
+          <blockquote
+            key={i}
+            className="my-2 pl-4 border-l-4 border-primary-500 dark:border-primary-400 italic text-slate-600 dark:text-slate-400"
+          >
+            {formatInlineText(quoteText)}
+          </blockquote>
+        );
+        i++;
+        continue;
+      }
+
+      // List items (- or *)
+      if (line.trim().match(/^[-*]\s/)) {
+        const listItems: string[] = [];
+        while (i < lines.length && lines[i].trim().match(/^[-*]\s/)) {
+          listItems.push(lines[i].replace(/^[-*]\s*/, ""));
+          i++;
+        }
+        elements.push(
+          <ul key={i} className="my-2 ml-6 list-disc space-y-1">
+            {listItems.map((item, idx) => (
+              <li key={idx} className="text-slate-700 dark:text-slate-300">
+                {formatInlineText(item)}
+              </li>
+            ))}
+          </ul>
+        );
+        continue;
+      }
+
+      // Regular line
+      if (line.trim()) {
+        elements.push(
+          <p key={i} className="my-1">
+            {formatInlineText(line)}
+          </p>
+        );
+      } else {
+        elements.push(<br key={i} />);
+      }
+      i++;
+    }
+
+    return <div className="whitespace-pre-wrap">{elements}</div>;
+  };
+
+  // Format inline text (bold, italic, links, inline code, images)
+  const formatInlineText = (text: string) => {
+    const parts: (string | React.ReactNode)[] = [];
+    let currentText = text;
+    let key = 0;
+
+    // Process in order: Images, markdown links, URLs, inline code, bold, italic
+    const imageRegex = /!\[([^\]]*)\]\(([^\)]+)\)/g;
+    const linkRegex = /\[([^\]]+)\]\(([^\)]+)\)/g;
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const codeRegex = /`([^`]+)`/g;
+    const boldRegex = /\*\*([^*]+)\*\*/g;
+    const italicRegex = /\*([^*]+)\*/g;
+
+    // First, handle images and markdown links, then plain URLs
+    const imageParts = currentText.split(imageRegex);
+
+    imageParts.forEach((part, idx) => {
+      // Every 3rd item starting from index 0 is text, index 1 is alt, index 2 is url
+      if (idx % 3 === 0) {
+        // Process markdown links in this text part
+        const linkParts = part.split(linkRegex);
+
+        linkParts.forEach((linkPart, linkIdx) => {
+          // Every 3rd item starting from index 0 is text, index 1 is link text, index 2 is url
+          if (linkIdx % 3 === 0) {
+            // Process plain URLs in this part
+            const urlParts = linkPart.split(urlRegex);
+
+            urlParts.forEach((urlPart, urlIdx) => {
+              if (urlPart.match(urlRegex)) {
+                parts.push(
+                  <a
+                    key={`url-${key++}`}
+                    href={urlPart}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary-600 dark:text-primary-400 hover:text-accent-600 dark:hover:text-accent-400 underline underline-offset-2 font-medium break-all transition-colors"
+                  >
+                    {urlPart}
+                  </a>
+                );
+              } else {
+                // Process other formatting in non-URL parts
+                const segments: (string | React.ReactNode)[] = [];
+                const combined = urlPart.split(
+                  /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g
+                );
+
+                combined.forEach((segment) => {
+                  // Inline code
+                  if (segment.match(/^`[^`]+`$/)) {
+                    const code = segment.slice(1, -1);
+                    segments.push(
+                      <code
+                        key={`code-${key++}`}
+                        className="px-1.5 py-0.5 bg-slate-200 dark:bg-slate-700 rounded text-sm font-mono text-primary-600 dark:text-primary-400"
+                      >
+                        {code}
+                      </code>
+                    );
+                  }
+                  // Bold
+                  else if (segment.match(/^\*\*[^*]+\*\*$/)) {
+                    const boldText = segment.slice(2, -2);
+                    segments.push(
+                      <strong
+                        key={`bold-${key++}`}
+                        className="font-bold text-slate-900 dark:text-white"
+                      >
+                        {boldText}
+                      </strong>
+                    );
+                  }
+                  // Italic
+                  else if (segment.match(/^\*[^*]+\*$/)) {
+                    const italicText = segment.slice(1, -1);
+                    segments.push(
+                      <em key={`italic-${key++}`} className="italic">
+                        {italicText}
+                      </em>
+                    );
+                  }
+                  // Plain text
+                  else if (segment) {
+                    segments.push(segment);
+                  }
+                });
+
+                parts.push(...segments);
+              }
+            });
+          } else if (linkIdx % 3 === 1) {
+            // This is link text - skip, we'll use it in the next iteration
+          } else if (linkIdx % 3 === 2) {
+            // This is the URL for a markdown link [text](url)
+            const linkText = linkParts[linkIdx - 1];
+            let linkUrl = linkPart;
+            // Ensure URL has protocol
+            if (!linkUrl.match(/^https?:\/\//)) {
+              linkUrl = "https://" + linkUrl;
+            }
+            parts.push(
+              <a
+                key={`link-${key++}`}
+                href={linkUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary-600 dark:text-primary-400 hover:text-accent-600 dark:hover:text-accent-400 underline underline-offset-2 font-medium transition-colors"
+              >
+                {linkText}
+              </a>
+            );
+          }
+        });
+      } else if (idx % 3 === 1) {
+        // This is image alt text - skip
+      } else if (idx % 3 === 2) {
+        // This is the image URL ![alt](url)
+        const altText = imageParts[idx - 1];
+        const imageUrl = part;
+        parts.push(
+          <img
+            key={`img-${key++}`}
+            src={imageUrl}
+            alt={altText || "Comment image"}
+            className="max-w-full h-auto rounded-lg border border-slate-200 dark:border-slate-700 my-2 shadow-md"
+            loading="lazy"
+          />
+        );
+      }
+    });
+
+    return <>{parts}</>;
+  };
+
+  // Get top-level comments (no parent)
+  const topLevelComments = comments.filter((c) => !c.parentCommentId);
+
+  // Get replies for a specific comment
+  const getReplies = (commentId: string) => {
+    return comments.filter((c) => c.parentCommentId === commentId);
+  };
+
+  useEffect(() => {
+    if (!slug) return;
+
+    // Load initial comments
+    loadComments();
+
+    // Subscribe to real-time updates
+    const unsubscribe = subscribeToComments(slug, (updatedComments) => {
+      setComments(updatedComments);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [slug]);
+
+  // Update comment author names and photos from user profiles
+  useEffect(() => {
+    const updateCommentsWithUserData = async () => {
+      if (comments.length === 0) return;
+
+      const updatedComments = await Promise.all(
+        comments.map(async (comment) => {
+          try {
+            const userData = await getUser(comment.authorId);
+            if (userData) {
+              return {
+                ...comment,
+                authorName: userData.nickname || userData.displayName,
+                authorPhotoURL: userData.photoURL,
+              };
+            }
+          } catch (error) {
+            console.error("Error fetching user data:", error);
+          }
+          return comment;
+        })
+      );
+
+      // Only update if there are actual changes
+      const hasChanges = updatedComments.some(
+        (updated, index) =>
+          updated.authorName !== comments[index].authorName ||
+          updated.authorPhotoURL !== comments[index].authorPhotoURL
+      );
+
+      if (hasChanges) {
+        setComments(updatedComments);
+      }
+    };
+
+    updateCommentsWithUserData();
+  }, [comments.length]); // Only run when comments count changes
+
+  // Close share menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (shareMenuOpen) {
+        const target = event.target as HTMLElement;
+        if (!target.closest(".share-menu-container")) {
+          setShareMenuOpen(null);
+        }
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [shareMenuOpen]);
+
+  async function loadComments() {
+    try {
+      const commentsData = await getCommentsByArticle(slug);
+      setComments(commentsData);
+    } catch (error) {
+      console.error("Error loading comments:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  if (!article) {
+    return (
+      <>
+        <Header onOpenAuthModal={() => setAuthModalOpen(true)} />
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+          <div className="max-w-4xl mx-auto px-4 py-12">
+            <div className="text-center">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">
+                Artikel niet gevonden
+              </h1>
+              <p className="text-slate-600 dark:text-slate-400 mb-8">
+                Het artikel dat je zoekt bestaat niet of is verwijderd.
+              </p>
+              <Link
+                href="/nieuws"
+                className="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-accent-600"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                Terug naar nieuws
+              </Link>
+            </div>
+          </div>
+        </div>
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+        />
+      </>
+    );
+  }
+
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!comment.trim() || !currentUser || submitting || comment.length > 500)
+      return;
+
+    setSubmitting(true);
+    try {
+      const commentData: any = {
+        articleSlug: slug,
+        authorId: currentUser.uid,
+        authorName:
+          userData?.nickname ||
+          userData?.displayName ||
+          currentUser.email ||
+          "Anoniem",
+        content: comment,
+        createdAt: Date.now(),
+        likes: 0,
+      };
+
+      // Only add optional fields if they have values
+      if (currentUser.photoURL) {
+        commentData.authorPhotoURL = currentUser.photoURL;
+      }
+      if (replyingTo) {
+        commentData.parentCommentId = replyingTo;
+      }
+
+      // Add uploaded images if any
+      if (uploadedImages.length > 0) {
+        commentData.images = uploadedImages.map((img) => img.url);
+      }
+
+      const newCommentId = await createComment(commentData);
+
+      // Create notification for parent comment author if this is a reply
+      if (replyingTo) {
+        const parentComment = comments.find((c) => c.id === replyingTo);
+        if (parentComment && parentComment.authorId !== currentUser.uid) {
+          await createNotification({
+            userId: parentComment.authorId,
+            type: "reply",
+            title: "Nieuwe reactie op je bericht",
+            message: `${
+              userData?.nickname || userData?.displayName || "Iemand"
+            } heeft gereageerd op je bericht: "${comment.substring(0, 50)}${
+              comment.length > 50 ? "..." : ""
+            }"`,
+            link: `/nieuws/${slug}#comment-${newCommentId}`,
+            read: false,
+            createdAt: Date.now(),
+          });
+        }
+      }
+
+      setComment("");
+      setReplyingTo(null);
+      setShowEmojiPicker(false);
+      setUploadedImages([]);
+      setUploadError(null);
+    } catch (error) {
+      console.error("Error posting comment:", error);
+      alert("Er is een fout opgetreden bij het plaatsen van je reactie.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleLikeComment = async (commentId: string) => {
+    if (!currentUser) {
+      setAuthModalOpen(true);
+      return;
+    }
+    try {
+      const commentToLike = comments.find((c) => c.id === commentId);
+      const alreadyLiked = commentToLike?.likedBy?.includes(currentUser.uid);
+
+      await likeComment(commentId, currentUser.uid);
+
+      // Create notification only if not already liked and not liking own comment
+      if (
+        !alreadyLiked &&
+        commentToLike &&
+        commentToLike.authorId !== currentUser.uid
+      ) {
+        await createNotification({
+          userId: commentToLike.authorId,
+          type: "like",
+          title: "Iemand vindt je bericht leuk",
+          message: `${
+            userData?.nickname || userData?.displayName || "Iemand"
+          } vindt je bericht leuk`,
+          link: `/nieuws/${slug}#comment-${commentId}`,
+          read: false,
+          createdAt: Date.now(),
+        });
+      }
+    } catch (error) {
+      console.error("Error liking comment:", error);
+    }
+  };
+
+  return (
+    <>
+      <Header onOpenAuthModal={() => setAuthModalOpen(true)} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+        {/* Structured Data */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "NewsArticle",
+              headline: article.title,
+              datePublished: article.publishedAt,
+              dateModified: article.updatedAt,
+              author: {
+                "@type": "Person",
+                name: article.author,
+              },
+              publisher: {
+                "@type": "Organization",
+                name: "Politie Forum Nederland",
+                url: "https://politie-forum.nl",
+                logo: {
+                  "@type": "ImageObject",
+                  url: "https://politie-forum.nl/logo.png",
+                },
+              },
+              articleSection: article.category,
+              inLanguage: "nl-NL",
+              url: `https://politie-forum.nl/nieuws/${slug}`,
+              mainEntityOfPage: {
+                "@type": "WebPage",
+                "@id": `https://politie-forum.nl/nieuws/${slug}`,
+              },
+              commentCount: comments.length,
+            }),
+          }}
+        />
+
+        <article
+          className="container mx-auto px-4 py-8 max-w-4xl"
+          itemScope
+          itemType="https://schema.org/NewsArticle"
+        >
+          {/* Back Button */}
+          <Link
+            href="/nieuws"
+            className="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-accent-600 dark:hover:text-accent-400 mb-6 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Terug naar nieuws</span>
+          </Link>
+
+          {/* Article Header */}
+          <header className="mb-8">
+            <div className="flex items-center gap-3 mb-4 flex-wrap">
+              <span
+                className="px-3 py-1 bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-300 text-sm font-medium rounded-full"
+                itemProp="articleSection"
+              >
+                {article.category}
+              </span>
+              <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  <time dateTime={article.publishedAt} itemProp="datePublished">
+                    {new Date(article.publishedAt).toLocaleDateString("nl-NL", {
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </time>
+                </span>
+                <span className="flex items-center gap-1">
+                  <User className="h-4 w-4" />
+                  <span itemProp="author">{article.author}</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  <span
+                    itemProp="interactionStatistic"
+                    itemScope
+                    itemType="https://schema.org/InteractionCounter"
+                  >
+                    <meta
+                      itemProp="interactionType"
+                      content="https://schema.org/ViewAction"
+                    />
+                    <span itemProp="userInteractionCount">245</span>
+                  </span>
+                </span>
+              </div>
+            </div>
+
+            <h1
+              className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4"
+              itemProp="headline"
+            >
+              {article.title}
+            </h1>
+
+            {/* Share Buttons */}
+            <div className="flex items-center gap-3">
+              <button className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors">
+                <Share2 className="h-4 w-4" />
+                Delen
+              </button>
+            </div>
+          </header>
+
+          {/* Article Content */}
+          <div className="prose prose-lg dark:prose-invert max-w-none mb-12">
+            <div itemProp="articleBody">
+              <ReactMarkdown>{article.content}</ReactMarkdown>
+            </div>
+          </div>
+
+          {/* Comments Section */}
+          <section
+            className="mt-12 border-t-2 border-slate-200 dark:border-slate-700 pt-10"
+            id="comments"
+          >
+            <div className="bg-gradient-to-r from-primary-50 to-accent-50 dark:from-primary-900/10 dark:to-accent-900/10 -mx-4 px-4 py-6 rounded-2xl mb-8">
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                <div className="bg-primary-600 dark:bg-primary-500 p-2 rounded-lg">
+                  <MessageSquare className="h-7 w-7 text-white" />
+                </div>
+                Comments ({comments.length})
+              </h2>
+              <p className="text-slate-600 dark:text-slate-400 mt-2 ml-14">
+                Deel je gedachten en discussieer mee
+              </p>
+            </div>
+
+            {/* Comment Form */}
+            {currentUser ? (
+              <div className="mb-8">
+                {replyingTo && (
+                  <div className="mb-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border-l-4 border-blue-500 dark:border-blue-400 rounded-r-xl flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-blue-100 dark:bg-blue-900 p-2 rounded-lg">
+                        <Reply className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                          Replying to{" "}
+                          {
+                            comments.find((c) => c.id === replyingTo)
+                              ?.authorName
+                          }
+                        </p>
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-0.5">
+                          Your reply will appear below their comment
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => setReplyingTo(null)}
+                      className="px-3 py-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 rounded-lg text-sm font-medium transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+                <form
+                  id="comment-form"
+                  onSubmit={handleSubmitComment}
+                  className="relative bg-white dark:bg-slate-800 rounded-xl border-2 border-slate-200 dark:border-slate-700 p-4 shadow-sm hover:border-primary-300 dark:hover:border-primary-700 transition-colors"
+                >
+                  <div className="relative">
+                    {/* Formatting Toolbar */}
+                    <div className="flex items-center gap-1 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const selection = window.getSelection()?.toString();
+                          if (selection) {
+                            setComment(
+                              comment.replace(selection, `**${selection}**`)
+                            );
+                          } else {
+                            setComment(comment + "**text**");
+                          }
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Bold (**text**)"
+                      >
+                        <Bold className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const selection = window.getSelection()?.toString();
+                          if (selection) {
+                            setComment(
+                              comment.replace(selection, `*${selection}*`)
+                            );
+                          } else {
+                            setComment(comment + "*text*");
+                          }
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Italic (*text*)"
+                      >
+                        <Italic className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const selection = window.getSelection()?.toString();
+                          if (selection) {
+                            setComment(
+                              comment.replace(selection, `\`${selection}\``)
+                            );
+                          } else {
+                            setComment(comment + "`code`");
+                          }
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Inline code (`code`)"
+                      >
+                        <Code className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setComment(
+                            comment +
+                              (comment ? "\n" : "") +
+                              "> Quote text here"
+                          );
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Quote (> text)"
+                      >
+                        <Quote className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setComment(
+                            comment + (comment ? "\n" : "") + "- List item"
+                          );
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="List (- item)"
+                      >
+                        <List className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const textarea = document.querySelector("textarea");
+                          const start = textarea?.selectionStart || 0;
+                          const end = textarea?.selectionEnd || 0;
+                          const selectedText = comment.substring(start, end);
+
+                          if (selectedText) {
+                            // If text is selected, prompt for URL only
+                            const url = prompt(
+                              "Enter URL for '" + selectedText + "':"
+                            );
+                            if (url) {
+                              const before = comment.substring(0, start);
+                              const after = comment.substring(end);
+                              setComment(
+                                before + `[${selectedText}](${url})` + after
+                              );
+                            }
+                          } else {
+                            // If no selection, prompt for both text and URL
+                            const text = prompt("Enter link text:");
+                            if (text) {
+                              const url = prompt("Enter URL:");
+                              if (url) {
+                                setComment(
+                                  comment +
+                                    (comment ? " " : "") +
+                                    `[${text}](${url})`
+                                );
+                              }
+                            }
+                          }
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Add link ([text](url))"
+                      >
+                        <LinkIcon className="h-4 w-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const url = prompt("Enter image URL:");
+                          if (url) {
+                            const alt =
+                              prompt("Enter image description (optional):") ||
+                              "Image";
+                            setComment(
+                              comment +
+                                (comment ? "\n" : "") +
+                                `![${alt}](${url})`
+                            );
+                          }
+                        }}
+                        className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Add image (![alt](url))"
+                      >
+                        <ImageIcon className="h-4 w-4" />
+                      </button>
+                      <div className="flex-1"></div>
+                      <button
+                        type="button"
+                        onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                        className="p-1.5 text-slate-500 hover:text-yellow-600 dark:hover:text-yellow-400 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Add emoji"
+                      >
+                        <Smile className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {/* Upload Error Message */}
+                    {uploadError && (
+                      <div className="mb-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-300 text-sm font-medium">
+                        {uploadError}
+                      </div>
+                    )}
+
+                    {/* Image Previews */}
+                    {uploadedImages.length > 0 && (
+                      <div className="mb-3 p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div className="flex items-center gap-2 mb-2">
+                          <ImageIcon className="h-4 w-4 text-slate-500" />
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                            Uploaded Images ({uploadedImages.length})
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                          {uploadedImages.map((img, idx) => (
+                            <div key={idx} className="relative group">
+                              <img
+                                src={img.url}
+                                alt={img.file.name}
+                                className="w-full h-24 object-cover rounded-lg border border-slate-300 dark:border-slate-600"
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center">
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(idx)}
+                                  className="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors"
+                                  title="Remove image"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                              <div className="absolute bottom-1 left-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded truncate">
+                                {(img.file.size / 1024).toFixed(0)}KB
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div
+                      className="relative"
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                    >
+                      <textarea
+                        value={comment}
+                        onChange={(e) => setComment(e.target.value)}
+                        placeholder="Write a comment... Use **bold**, *italic*, `code`, > quote, - lists, [text](url) for links. Upload images (max 1MB) or drag & drop!"
+                        disabled={submitting}
+                        className="w-full px-4 py-3 border-0 rounded-lg bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-primary-500 focus:bg-white dark:focus:bg-slate-800 resize-none disabled:opacity-50 transition-colors"
+                        rows={5}
+                      />
+                      {/* Drag & Drop Indicator */}
+                      <div className="absolute inset-0 pointer-events-none flex items-center justify-center bg-primary-50/90 dark:bg-primary-900/90 opacity-0 hover:opacity-100 transition-opacity rounded-lg border-2 border-dashed border-primary-400 dark:border-primary-500">
+                        <div className="text-center">
+                          <Upload className="h-8 w-8 text-primary-600 dark:text-primary-400 mx-auto mb-2" />
+                          <p className="text-sm font-medium text-primary-700 dark:text-primary-300">
+                            Drop image here
+                          </p>
+                          <p className="text-xs text-primary-600 dark:text-primary-400">
+                            Max 1MB
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Emoji Picker */}
+                    {showEmojiPicker && (
+                      <div className="absolute right-0 top-full mt-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl p-3 z-10">
+                        <div className="grid grid-cols-6 gap-2">
+                          {emojis.map((emoji) => (
+                            <button
+                              key={emoji}
+                              type="button"
+                              onClick={() => {
+                                setComment(comment + emoji);
+                                setShowEmojiPicker(false);
+                              }}
+                              className="text-2xl hover:bg-slate-100 dark:hover:bg-slate-700 rounded p-2 transition-colors"
+                            >
+                              {emoji}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center gap-4">
+                      <div className="text-sm text-slate-500 dark:text-slate-400">
+                        <span
+                          className={
+                            comment.length > 450
+                              ? "text-orange-500 font-medium"
+                              : ""
+                          }
+                        >
+                          {comment.length}
+                        </span>
+                        /500 characters
+                      </div>
+                      <div className="text-xs text-slate-400 dark:text-slate-500">
+                        {replyingTo ? "💬 Replying" : "✍️ New comment"}
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={
+                        !comment.trim() || submitting || comment.length > 500
+                      }
+                      className="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-accent-600 hover:from-primary-700 hover:to-accent-700 disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:shadow-none flex items-center gap-2"
+                    >
+                      <MessageSquare className="h-4 w-4" />
+                      {submitting
+                        ? "Posting..."
+                        : replyingTo
+                        ? "Post Reply"
+                        : "Post Comment"}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <div className="mb-8 p-6 bg-gradient-to-r from-primary-50 via-accent-50 to-primary-50 dark:from-primary-900/20 dark:via-accent-900/20 dark:to-primary-900/20 rounded-2xl border-2 border-dashed border-primary-300 dark:border-primary-700 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gradient-to-br from-primary-500 to-accent-500 p-4 rounded-xl shadow-lg">
+                    <MessageSquare className="h-7 w-7 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                      Join the Discussion
+                    </h3>
+                    <p className="text-slate-600 dark:text-slate-400">
+                      <button
+                        onClick={() => setAuthModalOpen(true)}
+                        className="text-primary-600 dark:text-primary-400 hover:text-accent-600 dark:hover:text-accent-400 font-bold underline underline-offset-2 transition-colors"
+                      >
+                        Log in
+                      </button>{" "}
+                      to post a comment and participate in the conversation.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Comments List */}
+            {loading ? (
+              <div className="flex items-center justify-center py-12">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+              </div>
+            ) : comments.length === 0 ? (
+              <div className="text-center py-16 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
+                <div className="bg-slate-200 dark:bg-slate-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <MessageSquare className="h-10 w-10 text-slate-400" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">
+                  No comments yet
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400">
+                  Be the first to share your thoughts!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {topLevelComments.map((c) => {
+                  const replies = getReplies(c.id);
+                  return (
+                    <div key={c.id} className="space-y-4">
+                      {/* Main Comment */}
+                      <div
+                        id={`comment-${c.id}`}
+                        className="group bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:shadow-xl hover:border-primary-400 dark:hover:border-primary-500 transition-all duration-300 scroll-mt-20"
+                      >
+                        <div className="flex gap-4">
+                          {/* Avatar */}
+                          <div className="flex-shrink-0">
+                            {c.authorPhotoURL ? (
+                              <img
+                                src={c.authorPhotoURL}
+                                alt={c.authorName}
+                                className="h-14 w-14 rounded-full object-cover ring-4 ring-white dark:ring-slate-700 shadow-lg"
+                              />
+                            ) : (
+                              <div className="h-14 w-14 rounded-full bg-gradient-to-br from-primary-500 via-accent-500 to-primary-600 flex items-center justify-center text-white font-bold text-xl ring-4 ring-white dark:ring-slate-700 shadow-lg">
+                                {c.authorName.charAt(0).toUpperCase()}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            {/* Author and timestamp */}
+                            <div className="flex items-start justify-between mb-3">
+                              <div>
+                                <h4 className="text-lg font-bold text-slate-900 dark:text-white">
+                                  {c.authorName}
+                                </h4>
+                                <p className="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
+                                  <Calendar className="h-3.5 w-3.5" />
+                                  {format(
+                                    new Date(c.createdAt),
+                                    "d MMMM yyyy 'at' HH:mm",
+                                    {
+                                      locale: nl,
+                                    }
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+
+                            {/* Comment text with rich formatting */}
+                            <div className="text-slate-700 dark:text-slate-300 mb-4 leading-relaxed">
+                              {formatCommentText(c.content)}
+                            </div>
+
+                            {/* Uploaded Images */}
+                            {c.images && c.images.length > 0 && (
+                              <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                {c.images.map((imageUrl, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="relative group/img rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-500 transition-all shadow-md hover:shadow-xl"
+                                  >
+                                    <img
+                                      src={imageUrl}
+                                      alt={`Uploaded image ${idx + 1}`}
+                                      className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                                      onClick={() => {
+                                        // Open image in new tab
+                                        window.open(imageUrl, "_blank");
+                                      }}
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors pointer-events-none" />
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Action buttons */}
+                            <div className="flex items-center gap-4 flex-wrap">
+                              <button
+                                onClick={() => handleLikeComment(c.id)}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all group/like ${
+                                  c.likedBy?.includes(currentUser?.uid || "")
+                                    ? "bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300"
+                                    : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-600 dark:hover:text-primary-400"
+                                }`}
+                              >
+                                <ThumbsUp
+                                  className={`h-4 w-4 group-hover/like:scale-110 transition-transform ${
+                                    c.likedBy?.includes(currentUser?.uid || "")
+                                      ? "fill-current"
+                                      : ""
+                                  }`}
+                                />
+                                <span className="font-semibold">
+                                  {c.likes || 0}
+                                </span>
+                                <span className="hidden sm:inline">Like</span>
+                              </button>
+
+                              <button
+                                onClick={() => {
+                                  if (!currentUser) {
+                                    setAuthModalOpen(true);
+                                    return;
+                                  }
+                                  setReplyingTo(c.id);
+                                }}
+                                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-accent-100 dark:hover:bg-accent-900/30 hover:text-accent-600 dark:hover:text-accent-400 transition-all group/reply"
+                              >
+                                <Reply className="h-4 w-4 group-hover/reply:scale-110 transition-transform" />
+                                <span>Reply</span>
+                                {replies.length > 0 && (
+                                  <span className="bg-accent-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                                    {replies.length}
+                                  </span>
+                                )}
+                              </button>
+
+                              <button
+                                onClick={async () => {
+                                  if (!currentUser) {
+                                    setAuthModalOpen(true);
+                                    return;
+                                  }
+                                  // Use a different endpoint for hearts/loves
+                                  try {
+                                    await likeComment(c.id, currentUser.uid);
+                                  } catch (error) {
+                                    console.error(
+                                      "Error loving comment:",
+                                      error
+                                    );
+                                  }
+                                }}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all group/heart ${
+                                  c.likedBy?.includes(currentUser?.uid || "")
+                                    ? "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+                                    : "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400"
+                                }`}
+                              >
+                                <Heart
+                                  className={`h-4 w-4 group-hover/heart:scale-110 transition-all ${
+                                    c.likedBy?.includes(currentUser?.uid || "")
+                                      ? "fill-current"
+                                      : "group-hover/heart:fill-current"
+                                  }`}
+                                />
+                                {c.likedBy && c.likedBy.length > 0 && (
+                                  <span className="font-semibold">
+                                    {c.likedBy.length}
+                                  </span>
+                                )}
+                              </button>
+
+                              <div className="relative share-menu-container">
+                                <button
+                                  onClick={() =>
+                                    setShareMenuOpen(
+                                      shareMenuOpen === c.id ? null : c.id
+                                    )
+                                  }
+                                  className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all"
+                                >
+                                  <Share2 className="h-4 w-4" />
+                                  <span className="hidden sm:inline">
+                                    Share
+                                  </span>
+                                </button>
+
+                                {/* Share Dropdown */}
+                                {shareMenuOpen === c.id && (
+                                  <div className="absolute bottom-full mb-2 right-0 bg-white dark:bg-slate-800 rounded-lg shadow-xl border-2 border-slate-200 dark:border-slate-700 p-2 min-w-[200px] z-10">
+                                    <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 px-2 py-1 mb-1">
+                                      Share comment
+                                    </div>
+                                    <button
+                                      onClick={async () => {
+                                        const url = `${window.location.origin}/nieuws/${slug}#comment-${c.id}`;
+                                        try {
+                                          await navigator.clipboard.writeText(
+                                            url
+                                          );
+                                          alert(
+                                            "✅ Link gekopieerd naar klembord!"
+                                          );
+                                          setShareMenuOpen(null);
+                                        } catch (err) {
+                                          console.error("Failed to copy:", err);
+                                        }
+                                      }}
+                                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-sm transition-colors text-left"
+                                    >
+                                      <LinkIcon className="h-4 w-4 text-slate-600 dark:text-slate-400" />
+                                      <span className="text-slate-700 dark:text-slate-300">
+                                        Copy Link
+                                      </span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const url = `${window.location.origin}/nieuws/${slug}#comment-${c.id}`;
+                                        const text = encodeURIComponent(
+                                          `Check dit commentaar op ${article.title}`
+                                        );
+                                        window.open(
+                                          `https://wa.me/?text=${text}%20${encodeURIComponent(
+                                            url
+                                          )}`,
+                                          "_blank"
+                                        );
+                                        setShareMenuOpen(null);
+                                      }}
+                                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-sm transition-colors text-left"
+                                    >
+                                      <svg
+                                        className="h-4 w-4 text-green-600"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+                                      </svg>
+                                      <span className="text-slate-700 dark:text-slate-300">
+                                        WhatsApp
+                                      </span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const url = `${window.location.origin}/nieuws/${slug}#comment-${c.id}`;
+                                        window.open(
+                                          `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                                            url
+                                          )}`,
+                                          "_blank"
+                                        );
+                                        setShareMenuOpen(null);
+                                      }}
+                                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-sm transition-colors text-left"
+                                    >
+                                      <svg
+                                        className="h-4 w-4 text-blue-600"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                                      </svg>
+                                      <span className="text-slate-700 dark:text-slate-300">
+                                        Facebook
+                                      </span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        const url = `${window.location.origin}/nieuws/${slug}#comment-${c.id}`;
+                                        const text = encodeURIComponent(
+                                          `Check dit commentaar op ${article.title}`
+                                        );
+                                        window.open(
+                                          `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(
+                                            url
+                                          )}`,
+                                          "_blank"
+                                        );
+                                        setShareMenuOpen(null);
+                                      }}
+                                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded text-sm transition-colors text-left"
+                                    >
+                                      <svg
+                                        className="h-4 w-4 text-slate-900 dark:text-white"
+                                        fill="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                                      </svg>
+                                      <span className="text-slate-700 dark:text-slate-300">
+                                        X (Twitter)
+                                      </span>
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Inline Reply Form for top-level comments */}
+                      {replyingTo === c.id && currentUser && (
+                        <div className="ml-12 pl-6 border-l-4 border-accent-300 dark:border-accent-700">
+                          <form
+                            onSubmit={handleSubmitComment}
+                            className="bg-white dark:bg-slate-800 rounded-xl border-2 border-accent-200 dark:border-accent-700 p-5 shadow-md"
+                          >
+                            <div className="mb-3 flex items-center justify-between">
+                              <span className="text-sm font-semibold text-accent-600 dark:text-accent-400 flex items-center gap-2">
+                                <Reply className="h-4 w-4" />
+                                Replying to {c.authorName}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setReplyingTo(null)}
+                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </div>
+
+                            {/* Formatting Toolbar */}
+                            <div className="flex items-center gap-1 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const selection = window
+                                    .getSelection()
+                                    ?.toString();
+                                  if (selection) {
+                                    setComment(
+                                      comment.replace(
+                                        selection,
+                                        `**${selection}**`
+                                      )
+                                    );
+                                  } else {
+                                    setComment(comment + "**text**");
+                                  }
+                                }}
+                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                title="Bold (**text**)"
+                              >
+                                <Bold className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const selection = window
+                                    .getSelection()
+                                    ?.toString();
+                                  if (selection) {
+                                    setComment(
+                                      comment.replace(
+                                        selection,
+                                        `*${selection}*`
+                                      )
+                                    );
+                                  } else {
+                                    setComment(comment + "*text*");
+                                  }
+                                }}
+                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                title="Italic (*text*)"
+                              >
+                                <Italic className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const url = prompt("Enter image URL:");
+                                  if (url) {
+                                    const desc = prompt(
+                                      "Enter image description (optional):"
+                                    );
+                                    setComment(
+                                      comment +
+                                        `\n\n![${desc || "Image"}](${url})`
+                                    );
+                                  }
+                                }}
+                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                title="Add Image URL"
+                              >
+                                <ImageIcon className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  document
+                                    .getElementById(`image-upload-${c.id}`)
+                                    ?.click()
+                                }
+                                className="p-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                title="Upload Image (max 1MB)"
+                              >
+                                <Upload className="h-4 w-4" />
+                              </button>
+                              <input
+                                type="file"
+                                id={`image-upload-${c.id}`}
+                                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                onChange={(e) =>
+                                  handleImageUpload(e.target.files)
+                                }
+                                className="hidden"
+                              />
+                            </div>
+
+                            {/* Upload Error */}
+                            {uploadError && (
+                              <div className="mb-2 p-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-sm">
+                                {uploadError}
+                              </div>
+                            )}
+
+                            {/* Image Previews */}
+                            {uploadedImages.length > 0 && (
+                              <div className="mb-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                  {uploadedImages.map((img, index) => (
+                                    <div
+                                      key={index}
+                                      className="relative group bg-slate-50 dark:bg-slate-700 rounded p-2 border border-slate-200 dark:border-slate-600"
+                                    >
+                                      <img
+                                        src={img.url}
+                                        alt="Preview"
+                                        className="w-full h-20 object-cover rounded mb-1"
+                                      />
+                                      <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                                        {img.file.name} (
+                                        {(img.file.size / 1024).toFixed(1)} KB)
+                                      </div>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const imageToRemove =
+                                            uploadedImages[index];
+                                          setUploadedImages((prev) =>
+                                            prev.filter((_, i) => i !== index)
+                                          );
+                                          setComment((prev) =>
+                                            prev.replace(
+                                              `![Image](${imageToRemove.url})`,
+                                              ""
+                                            )
+                                          );
+                                        }}
+                                        className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <textarea
+                              value={comment}
+                              onChange={(e) => setComment(e.target.value)}
+                              placeholder="Write your reply..."
+                              rows={4}
+                              className="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-accent-500 dark:focus:ring-accent-400 focus:border-transparent resize-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                              autoFocus
+                            />
+                            <div className="flex items-center justify-between mt-3">
+                              <span className="text-sm text-slate-500 dark:text-slate-400">
+                                <span
+                                  className={
+                                    comment.length > 450
+                                      ? "text-orange-500 font-medium"
+                                      : ""
+                                  }
+                                >
+                                  {comment.length}
+                                </span>
+                                /500 characters
+                              </span>
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReplyingTo(null);
+                                    setComment("");
+                                  }}
+                                  className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white font-medium transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  type="submit"
+                                  disabled={
+                                    !comment.trim() ||
+                                    submitting ||
+                                    comment.length > 500
+                                  }
+                                  className="px-6 py-2 bg-gradient-to-r from-accent-600 to-primary-600 hover:from-accent-700 hover:to-primary-700 disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg disabled:shadow-none flex items-center gap-2"
+                                >
+                                  <MessageSquare className="h-4 w-4" />
+                                  {submitting ? "Posting..." : "Post Reply"}
+                                </button>
+                              </div>
+                            </div>
+                          </form>
+                        </div>
+                      )}
+
+                      {/* Nested Replies */}
+                      {replies.length > 0 && (
+                        <div className="ml-12 pl-6 border-l-4 border-slate-200 dark:border-slate-700 space-y-3">
+                          {replies.map((reply) => (
+                            <div
+                              key={reply.id}
+                              id={`comment-${reply.id}`}
+                              className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:shadow-md hover:border-accent-300 dark:hover:border-accent-700 transition-all duration-200 scroll-mt-20"
+                            >
+                              <div className="flex gap-3">
+                                {/* Reply Avatar */}
+                                <div className="flex-shrink-0">
+                                  {reply.authorPhotoURL ? (
+                                    <img
+                                      src={reply.authorPhotoURL}
+                                      alt={reply.authorName}
+                                      className="h-10 w-10 rounded-full object-cover ring-2 ring-slate-200 dark:ring-slate-600"
+                                    />
+                                  ) : (
+                                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-accent-500 to-accent-600 flex items-center justify-center text-white font-bold text-sm ring-2 ring-slate-200 dark:ring-slate-600">
+                                      {reply.authorName.charAt(0).toUpperCase()}
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Reply Content */}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <h5 className="font-bold text-slate-900 dark:text-white">
+                                      {reply.authorName}
+                                    </h5>
+                                    <span className="text-xs text-slate-400 dark:text-slate-500">
+                                      •
+                                    </span>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                                      {format(
+                                        new Date(reply.createdAt),
+                                        "d MMM 'at' HH:mm",
+                                        { locale: nl }
+                                      )}
+                                    </p>
+                                  </div>
+
+                                  <div className="text-slate-700 dark:text-slate-300 mb-3 text-sm leading-relaxed">
+                                    {formatCommentText(reply.content)}
+                                  </div>
+
+                                  {/* Reply Uploaded Images */}
+                                  {reply.images && reply.images.length > 0 && (
+                                    <div className="mb-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                      {reply.images.map((imageUrl, idx) => (
+                                        <div
+                                          key={idx}
+                                          className="relative group/img rounded-lg overflow-hidden border border-slate-200 dark:border-slate-600 hover:border-accent-400 dark:hover:border-accent-500 transition-all shadow-sm hover:shadow-md"
+                                        >
+                                          <img
+                                            src={imageUrl}
+                                            alt={`Reply image ${idx + 1}`}
+                                            className="w-full h-auto object-cover cursor-pointer hover:scale-105 transition-transform duration-300"
+                                            onClick={() => {
+                                              window.open(imageUrl, "_blank");
+                                            }}
+                                          />
+                                          <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/10 transition-colors pointer-events-none" />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* Reply Actions */}
+                                  <div className="flex items-center gap-3">
+                                    <button
+                                      onClick={() =>
+                                        handleLikeComment(reply.id)
+                                      }
+                                      className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+                                        reply.likedBy?.includes(
+                                          currentUser?.uid || ""
+                                        )
+                                          ? "text-primary-600 dark:text-primary-400"
+                                          : "text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400"
+                                      }`}
+                                    >
+                                      <ThumbsUp
+                                        className={`h-3.5 w-3.5 ${
+                                          reply.likedBy?.includes(
+                                            currentUser?.uid || ""
+                                          )
+                                            ? "fill-current"
+                                            : ""
+                                        }`}
+                                      />
+                                      <span>{reply.likes || 0}</span>
+                                    </button>
+
+                                    <button
+                                      onClick={() => {
+                                        if (!currentUser) {
+                                          setAuthModalOpen(true);
+                                          return;
+                                        }
+                                        // Reply to the parent comment, not the nested reply
+                                        setReplyingTo(c.id);
+                                      }}
+                                      className="flex items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-accent-600 dark:hover:text-accent-400 transition-colors"
+                                    >
+                                      <Reply className="h-3.5 w-3.5" />
+                                      <span>Reply</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Inline Reply Form for nested replies */}
+                              {replyingTo === reply.id && currentUser && (
+                                <div className="mt-3 ml-12 pl-4 border-l-2 border-accent-300 dark:border-accent-700">
+                                  <form
+                                    onSubmit={handleSubmitComment}
+                                    className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 p-4 shadow-sm"
+                                  >
+                                    <div className="mb-2 flex items-center justify-between">
+                                      <span className="text-sm font-medium text-accent-600 dark:text-accent-400">
+                                        💬 Replying to {reply.authorName}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => setReplyingTo(null)}
+                                        className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                                      >
+                                        <X className="h-4 w-4" />
+                                      </button>
+                                    </div>
+
+                                    {/* Formatting Toolbar */}
+                                    <div className="flex items-center gap-1 mb-2 pb-2 border-b border-slate-200 dark:border-slate-700">
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const selection = window
+                                            .getSelection()
+                                            ?.toString();
+                                          if (selection) {
+                                            setComment(
+                                              comment.replace(
+                                                selection,
+                                                `**${selection}**`
+                                              )
+                                            );
+                                          } else {
+                                            setComment(comment + "**text**");
+                                          }
+                                        }}
+                                        className="p-1 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                        title="Bold"
+                                      >
+                                        <Bold className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const selection = window
+                                            .getSelection()
+                                            ?.toString();
+                                          if (selection) {
+                                            setComment(
+                                              comment.replace(
+                                                selection,
+                                                `*${selection}*`
+                                              )
+                                            );
+                                          } else {
+                                            setComment(comment + "*text*");
+                                          }
+                                        }}
+                                        className="p-1 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                        title="Italic"
+                                      >
+                                        <Italic className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const url =
+                                            prompt("Enter image URL:");
+                                          if (url) {
+                                            setComment(
+                                              comment + `\n![Image](${url})`
+                                            );
+                                          }
+                                        }}
+                                        className="p-1 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                        title="Image URL"
+                                      >
+                                        <ImageIcon className="h-3.5 w-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          document
+                                            .getElementById(
+                                              `image-upload-${reply.id}`
+                                            )
+                                            ?.click()
+                                        }
+                                        className="p-1 text-slate-500 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                                        title="Upload Image"
+                                      >
+                                        <Upload className="h-3.5 w-3.5" />
+                                      </button>
+                                      <input
+                                        type="file"
+                                        id={`image-upload-${reply.id}`}
+                                        accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                        onChange={(e) =>
+                                          handleImageUpload(e.target.files)
+                                        }
+                                        className="hidden"
+                                      />
+                                    </div>
+
+                                    {/* Upload Error */}
+                                    {uploadError && (
+                                      <div className="mb-2 p-2 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded text-xs">
+                                        {uploadError}
+                                      </div>
+                                    )}
+
+                                    {/* Image Previews */}
+                                    {uploadedImages.length > 0 && (
+                                      <div className="mb-2">
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {uploadedImages.map((img, index) => (
+                                            <div
+                                              key={index}
+                                              className="relative group bg-slate-50 dark:bg-slate-700 rounded p-1.5 border border-slate-200 dark:border-slate-600"
+                                            >
+                                              <img
+                                                src={img.url}
+                                                alt="Preview"
+                                                className="w-full h-16 object-cover rounded mb-1"
+                                              />
+                                              <div className="text-xs text-slate-600 dark:text-slate-400 truncate">
+                                                {(img.file.size / 1024).toFixed(
+                                                  0
+                                                )}{" "}
+                                                KB
+                                              </div>
+                                              <button
+                                                type="button"
+                                                onClick={() => {
+                                                  const imageToRemove =
+                                                    uploadedImages[index];
+                                                  setUploadedImages((prev) =>
+                                                    prev.filter(
+                                                      (_, i) => i !== index
+                                                    )
+                                                  );
+                                                  setComment((prev) =>
+                                                    prev.replace(
+                                                      `![Image](${imageToRemove.url})`,
+                                                      ""
+                                                    )
+                                                  );
+                                                }}
+                                                className="absolute top-1 right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                              >
+                                                <X className="h-2.5 w-2.5" />
+                                              </button>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    <textarea
+                                      value={comment}
+                                      onChange={(e) =>
+                                        setComment(e.target.value)
+                                      }
+                                      placeholder="Write your reply..."
+                                      rows={3}
+                                      className="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-accent-500 dark:focus:ring-accent-400 focus:border-transparent resize-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                    />
+                                    <div className="flex items-center justify-between mt-2">
+                                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                                        {comment.length}/500
+                                      </span>
+                                      <div className="flex gap-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setReplyingTo(null);
+                                            setComment("");
+                                          }}
+                                          className="px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                        >
+                                          Cancel
+                                        </button>
+                                        <button
+                                          type="submit"
+                                          disabled={
+                                            !comment.trim() ||
+                                            submitting ||
+                                            comment.length > 500
+                                          }
+                                          className="px-4 py-1.5 bg-gradient-to-r from-accent-600 to-primary-600 hover:from-accent-700 hover:to-primary-700 disabled:from-slate-400 disabled:to-slate-400 disabled:cursor-not-allowed text-white rounded-lg text-sm font-semibold transition-all"
+                                        >
+                                          {submitting
+                                            ? "Posting..."
+                                            : "Post Reply"}
+                                        </button>
+                                      </div>
+                                    </div>
+                                  </form>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+
+          {/* Publisher Info (hidden but for SEO) */}
+          <div
+            itemProp="publisher"
+            itemScope
+            itemType="https://schema.org/Organization"
+            style={{ display: "none" }}
+          >
+            <span itemProp="name">Politie Forum Nederland</span>
+            <span itemProp="url">https://politie-forum.nl</span>
+            <div
+              itemProp="logo"
+              itemScope
+              itemType="https://schema.org/ImageObject"
+            >
+              <span itemProp="url">https://politie-forum.nl/logo.png</span>
+            </div>
+          </div>
+        </article>
+      </div>
+      <AuthModal
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+      />
+    </>
+  );

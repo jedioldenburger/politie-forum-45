@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <!-- Diep metallic blauw -->
+    <radialGradient id="metalBlue" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#63B6FF"></stop>
+      <stop offset="35%" stop-color="#1E6EDC"></stop>
+      <stop offset="80%" stop-color="#0C2E70"></stop>
+      <stop offset="100%" stop-color="#081B3F"></stop>
+    </radialGradient>
+
+    <!-- Hooglicht -->
+    <radialGradient id="highlight" cx="40%" cy="30%" r="70%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.9)"></stop>
+      <stop offset="30%" stop-color="rgba(255,255,255,0.2)"></stop>
+      <stop offset="100%" stop-color="rgba(255,255,255,0)"></stop>
+    </radialGradient>
+
+    <!-- Slagschaduw -->
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="4" flood-color="#000000" flood-opacity="0.6"></feDropShadow>
+    </filter>
+
+    <!-- Binnenste gloed -->
+    <filter id="innerGlow">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="2" result="blur"></feGaussianBlur>
+      <feComposite in="SourceGraphic" in2="blur" operator="arithmetic" k1="1" k2="0.7"></feComposite>
+    </filter>
+
+    <!-- Realistisch gegraveerd effect -->
+    <filter id="deepEngrave" x="-10%" y="-10%" width="120%" height="120%">
+      <!-- Diepe slagschaduw in het metaal -->
+      <feDropShadow dx="0.4" dy="0.6" stdDeviation="0.6" flood-color="#000000" flood-opacity="0.7" result="shadow"></feDropShadow>
+      <!-- Hooglicht op bovenrand van letters -->
+      <feDropShadow dx="-0.4" dy="-0.4" stdDeviation="0.5" flood-color="#8EC8FF" flood-opacity="0.8" result="highlight"></feDropShadow>
+      <feMerge>
+        <feMergeNode in="shadow"></feMergeNode>
+        <feMergeNode in="highlight"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+
+    <!-- Lagere boog voor tekst -->
+    <path id="textArcLower" d="M26,52 A38,32 0 0,1 102,52"></path>
+  </defs>
+
+  <!-- Badge -->
+  <path d="M64 6
+           C58 12,46 16,34 16
+           C28 16,24 20,24 26
+           C24 68,38 108,64 122
+           C90 108,104 68,104 26
+           C104 20,100 16,94 16
+           C82 16,70 12,64 6Z" fill="url(#metalBlue)" stroke="#062B6C" stroke-width="3" filter="url(#dropShadow)"></path>
+
+  <!-- Glanslaag -->
+  <path d="M64 6
+           C58 12,46 16,34 16
+           C28 16,24 20,24 26
+           C24 68,38 108,64 122
+           C90 108,104 68,104 26
+           C104 20,100 16,94 16
+           C82 16,70 12,64 6Z" fill="url(#highlight)" opacity="0.35" filter="url(#innerGlow)"></path>
+
+  <!-- Ster -->
+  <polygon points="64,40 70,58 88,58 74,68 79,86 64,75 49,86 54,68 40,58 58,58" fill="url(#highlight)" stroke="#0C3C90" stroke-width="2.5" filter="url(#innerGlow)"></polygon>
+
+  <!-- Reflectie -->
+  <ellipse cx="64" cy="36" rx="40" ry="16" fill="url(#highlight)" opacity="0.25"></ellipse>
+
+  <!-- Diep ingegraveerde tekst -->
+  <text font-family="Arial Black, sans-serif" font-size="9" font-weight="bold" fill="#061B3C" text-anchor="middle" filter="url(#deepEngrave)">
+    <textPath href="#textArcLower" startOffset="50%">politie-forum.nl</textPath>
+  </text>
+</svg>

@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "blockchainkix-com-fy"
+  },
+  "targets": {
+    "blockchainkix-com-fy": {
+      "hosting": {
+        "politie-forum-45": [
+          "politie-forum-45"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

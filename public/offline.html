@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Politie Forum Nederland</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #001f5c 0%, #004bbf 100%);
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      text-align: center;
+    }
+
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 60px;
+    }
+
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+      font-weight: 700;
+    }
+
+    p {
+      font-size: 1.2em;
+      line-height: 1.6;
+      margin-bottom: 30px;
+      opacity: 0.9;
+    }
+
+    .button {
+      display: inline-block;
+      background: #e60000;
+      color: white;
+      padding: 15px 40px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1em;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .status {
+      margin-top: 40px;
+      padding: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-size: 0.9em;
+    }
+
+    .status-indicator {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e60000;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+
+    .status-indicator.online {
+      background: #00c851;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.5;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="icon">
+      📡
+    </div>
+
+    <h1>Je bent offline</h1>
+
+    <p>
+      Het lijkt erop dat je geen internetverbinding hebt.
+      Controleer je verbinding en probeer het opnieuw.
+    </p>
+
+    <a href="/" class="button" onclick="window.location.reload(); return false;">
+      Opnieuw proberen
+    </a>
+
+    <div class="status">
+      <span class="status-indicator" id="status-indicator"></span>
+      <span id="status-text">Offline</span>
+    </div>
+  </div>
+
+  <script>
+    // Monitor connection status
+    function updateStatus() {
+      const indicator = document.getElementById('status-indicator');
+      const text = document.getElementById('status-text');
+
+      if (navigator.onLine) {
+        indicator.classList.add('online');
+        text.textContent = 'Online - Klik om opnieuw te laden';
+      } else {
+        indicator.classList.remove('online');
+        text.textContent = 'Offline - Wachten op verbinding...';
+      }
+    }
+
+    // Update status on page load
+    updateStatus();
+
+    // Listen for online/offline events
+    window.addEventListener('online', () => {
+      updateStatus();
+      // Auto-reload when back online
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    });
+
+    window.addEventListener('offline', updateStatus);
+
+    // Check connection every 5 seconds
+    setInterval(updateStatus, 5000);
+  </script>
+</body>
+
+</html>

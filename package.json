@@ -1,0 +1,78 @@
+{
+  "name": "politie-forum-nl",
+  "version": "1.0.0",
+  "description": "Modern forum platform voor politie-forum.nl",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack -p 3001",
+    "build": "next build",
+    "build:analyze": "ANALYZE=true next build",
+    "build:static-css": "tailwindcss -c tailwind.static.config.js -i static-styles.css -o public/static-styles.css --minify",
+    "watch:static-css": "tailwindcss -c tailwind.static.config.js -i static-styles.css -o public/static-styles.css --watch",
+    "export": "next export",
+    "build:firebase": "npm run build && npm run export",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "lighthouse": "lighthouse https://politie-forum.nl --output=html --output-path=./lighthouse-report.html --chrome-flags='--headless'",
+    "lighthouse:mobile": "lighthouse https://politie-forum.nl --output=html --output-path=./lighthouse-mobile.html --preset=perf --chrome-flags='--headless' --emulated-form-factor=mobile",
+    "deploy:vercel": "vercel --prod",
+    "deploy:firebase": "npm run build:firebase && firebase deploy --only hosting",
+    "deploy:all": "npm run deploy:vercel && npm run deploy:firebase",
+    "init-db": "tsx scripts/init-database.ts",
+    "test-admin": "tsx scripts/test-firebase-admin.ts",
+    "deploy-rules": "tsx scripts/deploy-rules.ts",
+    "update-rss": "tsx scripts/update-rss.ts",
+    "rss-to-forum": "tsx scripts/rss-to-forum.ts"
+  },
+  "dependencies": {
+    "@types/d3": "^7.4.3",
+    "@types/leaflet": "^1.9.20",
+    "@types/leaflet.markercluster": "^1.5.6",
+    "@vercel/sdk": "^1.14.0",
+    "clsx": "^2.1.1",
+    "d3": "^7.9.0",
+    "date-fns": "^4.1.0",
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.5.0",
+    "googleapis": "^161.0.0",
+    "groq-sdk": "^0.33.0",
+    "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
+    "lucide-react": "^0.468.0",
+    "next": "^15.5.4",
+    "node-cron": "^4.2.1",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-markdown": "^10.1.0",
+    "rss-parser": "^3.13.0",
+    "web-vitals": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/dotenv": "^6.1.1",
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.6",
+    "@types/react-dom": "^19.0.2",
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^17.2.3",
+    "eslint": "^9.18.0",
+    "eslint-config-next": "^15.5.4",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.20.6",
+    "typescript": "^5.7.3",
+    "vercel": "^48.8.2"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 100",
+      "edge >= 100",
+      "firefox >= 100",
+      "safari >= 15"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

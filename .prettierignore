@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+build/
+dist/
+
+# Vercel
+.vercel/
+
+# Python
+venv/
+__pycache__/
+*.py[cod]
+
+# Documentation - don't format MD files with custom structure
+MD/**/*.md
+
+# Config files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Lighthouse reports
+*.report.html
+
+# Firebase
+.firebase/
+
+# Environment
+.env*
+
+# Static templates
+static-*.html
+templates/

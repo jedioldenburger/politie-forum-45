@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="nl-NL" class="light">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- SEO: Title optimized for SERP cutoff (<70 chars) -->
+    <title>{{TITLE}} | Politie Forum</title>
+    <meta name="description" content="{{DESCRIPTION}}">
+
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="{{KEYWORDS}}">
+    <meta name="news_keywords" content="politie forum, veiligheid, justitie, Nederland, nieuws, {{CATEGORY}}">
+    <meta name="author" content="{{AUTHOR}}">
+    <meta name="rights" content="© 2025 Politie Forum Nederland">
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow, max-video-preview:-1, max-image-preview:large, max-snippet:-1">
+    <link rel="canonical" href="https://politie-forum.nl/nieuws/{{SLUG}}">
+
+    <!-- Additional SEO -->
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="category" content="Nieuws">
+    <meta name="creator" content="{{AUTHOR}}">
+    <meta property="article:published_time" content="{{DATE_ISO}}">
+    <meta property="article:modified_time" content="{{DATE_ISO}}">
+    <meta property="article:author" content="{{AUTHOR}}">
+    <meta property="article:section" content="{{CATEGORY}}">
+    <meta property="article:tag" content="{{KEYWORDS}}">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="{{TITLE}}">
+    <meta property="og:description" content="{{DESCRIPTION}}">
+    <meta property="og:image" content="https://politie-forum.nl/og/politie-forum-1200x630.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="{{TITLE}}">
+    <meta property="og:url" content="https://politie-forum.nl/nieuws/{{SLUG}}">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Politie Forum Nederland">
+    <meta property="og:locale" content="nl_NL">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{TITLE}}">
+    <meta name="twitter:description" content="{{DESCRIPTION}}">
+    <meta name="twitter:image" content="https://politie-forum.nl/og/politie-forum-1200x630.png">
+    <meta name="twitter:site" content="@politieforum">
+    <meta name="twitter:creator" content="@politieforum">
+
+    <!-- Publisher -->
+    <meta name="publisher" content="digestpaper.com">
+
+    <!-- Basic Favicons -->
+    <link rel="icon" href="/police_badge_icon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/police_badge_icon_32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/police_badge_icon_16x16.png">
+    <link rel="shortcut icon" href="/police_badge_icon.ico">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <!-- SEO: Optimized theme-color (2 tags for light/dark) -->
+    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#001f5c" media="(prefers-color-scheme: dark)">
+
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/police_badge_icon_192x192.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/police_badge_icon_192x192.png">
+
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileColor" content="#0a1931">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+
+    <!-- Tailwind CSS Compiled -->
+    <link rel="stylesheet" href="/static-styles.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Structured Data (JSON-LD) - Enhanced with NewsArticle + DiscussionForumPosting + Geo -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "Organization",
+                "@id": "https://politie-forum.nl/#org",
+                "name": "Politie Forum Nederland",
+                "alternateName": "Politie-Forum.nl",
+                "url": "https://politie-forum.nl",
+                "logo": {
+                    "@type": "ImageObject",
+                    "@id": "https://politie-forum.nl/#logo",
+                    "url": "https://politie-forum.nl/logo.png",
+                    "contentUrl": "https://politie-forum.nl/logo.png",
+                    "width": 1024,
+                    "height": 1024,
+                    "caption": "Politie Forum Nederland Logo"
+                },
+                "address": {
+                    "@type": "PostalAddress",
+                    "streetAddress": "Sint Olofssteeg 4",
+                    "postalCode": "1012AK",
+                    "addressLocality": "Amsterdam",
+                    "addressCountry": "NL"
+                },
+                "contactPoint": {
+                    "@type": "ContactPoint",
+                    "telephone": "+31648319167",
+                    "email": "info@politie-forum.nl",
+                    "contactType": "customer service",
+                    "availableLanguage": "Dutch"
+                },
+                "email": "info@politie-forum.nl",
+                "telephone": "+31648319167",
+                "sameAs": [
+                    "https://x.com/politieforum",
+                    "https://facebook.com/politieforum",
+                    "https://instagram.com/politieforum",
+                    "https://politie-nl.nl"
+                ]
+            },
+            {{LOCATION_JSON}},
+            {
+                "@type": "NewsArticle",
+                "@id": "https://politie-forum.nl/nieuws/{{SLUG}}#article",
+                "headline": "{{TITLE}}",
+                "description": "{{DESCRIPTION}}",
+                "articleBody": "{{ARTICLE_BODY_SNIPPET}}",
+                "url": "https://politie-forum.nl/nieuws/{{SLUG}}",
+                "mainEntityOfPage": "https://politie-forum.nl/nieuws/{{SLUG}}",
+                "image": {
+                    "@type": "ImageObject",
+                    "url": "https://politie-forum.nl/og/politie-forum-1200x630.png",
+                    "width": 1200,
+                    "height": 630
+                },
+                "thumbnailUrl": "https://politie-forum.nl/og/politie-forum-1200x630.png",
+                "datePublished": "{{DATE_ISO}}",
+                "dateModified": "{{DATE_ISO}}",
+                "author": {
+                    "@type": "Person",
+                    "name": "Politie Forum Redactie",
+                    "url": "https://politie-forum.nl"
+                },
+                "publisher": {
+                    "@id": "https://politie-forum.nl/#org"
+                },
+                "articleSection": "{{CATEGORY}}",
+                "keywords": {{TAGS_JSON}},
+                "wordCount": {{WORD_COUNT}},
+                "genre": "Nieuws",
+                "inLanguage": "nl-NL",
+                "isAccessibleForFree": true,
+                "contentLocation": {
+                    "@id": "https://politie-forum.nl/nieuws/{{SLUG}}#place"
+                },
+                "speakable": {
+                    "@type": "SpeakableSpecification",
+                    "cssSelector": ["article h1", "article .prose"]
+                }
+            },
+            {
+                "@type": "DiscussionForumPosting",
+                "@id": "https://politie-forum.nl/nieuws/{{SLUG}}#discussion",
+                "headline": "Discussie: {{TITLE}}",
+                "articleBody": "Forumdiscussie over: {{DESCRIPTION}}",
+                "url": "https://politie-forum.nl/nieuws/{{SLUG}}#reacties",
+                "about": {
+                    "@id": "https://politie-forum.nl/nieuws/{{SLUG}}#article"
+                },
+                "author": {
+                    "@id": "https://politie-forum.nl/#org"
+                },
+                "datePublished": "{{DATE_ISO}}",
+                "inLanguage": "nl-NL",
+                "commentCount": 0,
+                "interactionStatistic": {
+                    "@type": "InteractionCounter",
+                    "interactionType": "https://schema.org/CommentAction",
+                    "userInteractionCount": 0
+                },
+                "potentialAction": {
+                    "@type": "CommentAction",
+                    "name": "Plaats een reactie",
+                    "target": "https://politie-forum.nl/nieuws/{{SLUG}}#reacties"
+                },
+                "comment": []
+            },
+            {
+                "@type": "BreadcrumbList",
+                "@id": "https://politie-forum.nl/nieuws/{{SLUG}}#breadcrumb",
+                "itemListElement": [
+                    {
+                        "@type": "ListItem",
+                        "position": 1,
+                        "name": "Home",
+                        "item": "https://politie-forum.nl/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 2,
+                        "name": "Nieuws",
+                        "item": "https://politie-forum.nl/nieuws/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 3,
+                        "name": "{{CATEGORY}}",
+                        "item": "https://politie-forum.nl/nieuws/{{BREADCRUMB_CATEGORY}}/"
+                    },
+                    {
+                        "@type": "ListItem",
+                        "position": 4,
+                        "name": "{{TITLE}}",
+                        "item": "https://politie-forum.nl/nieuws/{{SLUG}}"
+                    }
+                ]
+            },
+            {
+                "@type": "WebPage",
+                "@id": "https://politie-forum.nl/nieuws/{{SLUG}}",
+                "url": "https://politie-forum.nl/nieuws/{{SLUG}}",
+                "name": "{{TITLE}} — Politie Forum Nederland",
+                "description": "{{DESCRIPTION}}",
+                "publisher": {
+                    "@id": "https://politie-forum.nl/#org"
+                },
+                "inLanguage": "nl-NL",
+                "breadcrumb": {
+                    "@id": "https://politie-forum.nl/nieuws/{{SLUG}}#breadcrumb"
+                },
+                "primaryImageOfPage": {
+                    "@type": "ImageObject",
+                    "url": "https://politie-forum.nl/og/politie-forum-1200x630.png"
+                },
+                "datePublished": "{{DATE_ISO}}",
+                "dateModified": "{{DATE_ISO}}",
+                "isPartOf": {
+                    "@type": "WebSite",
+                    "@id": "https://politie-forum.nl/#website",
+                    "name": "Politie Forum Nederland",
+                    "url": "https://politie-forum.nl"
+                }
+            }
+        ]
+    }
+    </script>
+
+    <style>
+        /* Custom dark mode styles */
+        .prose-custom h1,
+        .prose-custom h2,
+        .prose-custom h3 {
+            color: inherit;
+        }
+
+        .prose-custom a {
+            color: #004bbf;
+            text-decoration: underline;
+        }
+
+        .dark .prose-custom a {
+            color: #5a75f3;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 text-slate-900 dark:text-white transition-colors">
+
+    <!-- Header -->
+    <header class="bg-primary-800 text-white shadow-lg border-b-[3px] border-white">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <a href="/" class="flex items-center space-x-3">
+                    <i data-lucide="shield" class="h-10 w-10 text-accent-500"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Politie Forum Nederland</h1>
+                        <p class="text-sm text-primary-200">Jouw community voor politie-informatie</p>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="/" class="hover:text-accent-400 transition-colors">Home</a>
+                    <a href="/categorieen" class="hover:text-accent-400 transition-colors">Categorieën</a>
+                    <a href="/nieuws" class="hover:text-accent-400 transition-colors">Nieuws</a>
+                    <a href="/leden" class="hover:text-accent-400 transition-colors">Leden</a>
+                </nav>
+
+                <!-- Desktop Actions -->
+                <div class="hidden md:flex items-center space-x-4">
+                    <button id="themeToggle" class="p-2 rounded-lg hover:bg-primary-700 transition-colors"
+                        aria-label="Wissel thema">
+                        <i data-lucide="moon" class="h-5 w-5"></i>
+                    </button>
+                    <button id="loginBtn"
+                        class="bg-accent-600 hover:bg-accent-700 px-4 py-2 rounded-lg font-medium transition-colors">
+                        Inloggen
+                    </button>
+                    <div id="userSection" class="hidden items-center gap-2">
+                        <span id="userName" class="text-sm font-medium"></span>
+                        <button id="logoutBtn"
+                            class="text-sm hover:text-accent-400 transition-colors">Uitloggen</button>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg hover:bg-primary-700 transition-colors">
+                    <i data-lucide="menu" class="h-6 w-6"></i>
+                </button>
+            </div>
+
+            <!-- Mobile Menu -->
+            <div id="mobileMenu" class="hidden md:hidden mt-4 pt-4 border-t border-primary-700">
+                <nav class="flex flex-col space-y-3">
+                    <a href="/" class="hover:text-accent-400 transition-colors py-2">Home</a>
+                    <a href="/categorieen" class="hover:text-accent-400 transition-colors py-2">Categorieën</a>
+                    <a href="/nieuws" class="hover:text-accent-400 transition-colors py-2">Nieuws</a>
+                    <a href="/leden" class="hover:text-accent-400 transition-colors py-2">Leden</a>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- Back Button -->
+        <a href="/nieuws"
+            class="inline-flex items-center gap-2 text-primary-600 dark:text-primary-400 hover:text-accent-600 dark:hover:text-accent-400 mb-6 transition-colors">
+            <i data-lucide="arrow-left" class="h-4 w-4"></i>
+            <span>Terug naar nieuws</span>
+        </a>
+
+        <!-- Article Header -->
+        <article class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8">
+            <header class="mb-8">
+                <div class="flex items-center gap-3 mb-4 flex-wrap">
+                    <span
+                        class="px-3 py-1 bg-accent-100 dark:bg-accent-900 text-accent-700 dark:text-accent-300 text-sm font-medium rounded-full">
+                        {{CATEGORY}}
+                    </span>
+                    <div class="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="calendar" class="h-4 w-4"></i>
+                            {{DATE}}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="user" class="h-4 w-4"></i>
+                            {{AUTHOR}}
+                        </span>
+                    </div>
+                </div>
+
+                <h1 class="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+                    {{TITLE}}
+                </h1>
+
+                <!-- Share Buttons -->
+                <div class="flex items-center gap-3">
+                    <button
+                        class="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-medium transition-colors">
+                        <i data-lucide="share-2" class="h-4 w-4"></i>
+                        Delen
+                    </button>
+                </div>
+            </header>
+
+            <!-- Article Content -->
+            <div class="prose prose-lg dark:prose-invert max-w-none prose-custom">
+                {{CONTENT}}
+            </div>
+        </article>
+
+        <!-- FAQ Section -->
+        <section class="mt-12 bg-white dark:bg-slate-800 rounded-2xl shadow-xl overflow-hidden" id="faq" itemscope
+            itemtype="https://schema.org/FAQPage">
+            <button aria-label="Toon of verberg veelgestelde vragen" aria-expanded="true" aria-controls="faq-content"
+                id="faqToggle"
+                class="w-full flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-slate-50 dark:from-blue-900/20 dark:to-slate-800 hover:from-blue-100 hover:to-slate-100 dark:hover:from-blue-800/30 dark:hover:to-slate-700 transition-all">
+                <div>
+                    <h2 id="faq-heading"
+                        class="text-2xl font-bold text-blue-900 dark:text-blue-400 flex items-center gap-3">
+                        <i data-lucide="circle-help" class="h-6 w-6" aria-hidden="true"></i>
+                        <span>Veelgestelde Vragen</span>
+                    </h2>
+                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                        Alles wat u moet weten over dit onderwerp
+                    </p>
+                </div>
+                <i data-lucide="chevron-up" id="faqChevron"
+                    class="h-6 w-6 text-slate-600 dark:text-slate-400 flex-shrink-0 transition-transform"
+                    aria-hidden="true"></i>
+            </button>
+
+            <div id="faq-content" class="p-6 space-y-6">
+                <h3 class="text-xl font-semibold text-slate-900 dark:text-white mb-4 flex items-center gap-2">
+                    <i data-lucide="help-circle" class="h-5 w-5 text-blue-600 dark:text-blue-400"
+                        aria-hidden="true"></i>
+                    FAQ's
+                </h3>
+
+                <div class="space-y-4" id="faqList">
+                    <!-- FAQ items will be populated here from {{CONTENT}} or dynamically -->
+                    <div class="text-center py-8 text-slate-500 dark:text-slate-400">
+                        <i data-lucide="info" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                        <p>Geen FAQ-items beschikbaar voor dit artikel.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section class="mt-12 bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8" id="comments">
+            <div
+                class="bg-gradient-to-r from-primary-50 to-accent-50 dark:from-primary-900/10 dark:to-accent-900/10 -mx-8 -mt-8 px-8 py-6 rounded-t-2xl mb-8">
+                <h2 class="text-3xl font-bold text-slate-900 dark:text-white flex items-center gap-3">
+                    <div class="bg-primary-600 dark:bg-primary-500 p-2 rounded-lg">
+                        <i data-lucide="message-square" class="h-7 w-7 text-white"></i>
+                    </div>
+                    <span>Reacties (<span id="commentsCount">0</span>)</span>
+                </h2>
+                <p class="text-slate-600 dark:text-slate-400 mt-2 ml-14">
+                    Deel je gedachten en discussieer mee
+                </p>
+            </div>
+
+            <!-- Comment Form (logged in users) -->
+            <div id="commentFormContainer" class="hidden mb-8">
+                <form id="commentForm"
+                    class="bg-slate-50 dark:bg-slate-900 rounded-xl p-4 border-2 border-slate-200 dark:border-slate-700">
+                    <textarea id="commentText" placeholder="Schrijf een reactie..." rows="4"
+                        class="w-full px-4 py-3 border-0 rounded-lg bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:ring-2 focus:ring-primary-500 resize-none"></textarea>
+                    <div
+                        class="flex items-center justify-between mt-4 pt-3 border-t border-slate-200 dark:border-slate-700">
+                        <div class="text-sm text-slate-500 dark:text-slate-400">
+                            <span id="charCount">0</span>/500 tekens
+                        </div>
+                        <button type="submit"
+                            class="px-6 py-2.5 bg-gradient-to-r from-primary-600 to-accent-600 hover:from-primary-700 hover:to-accent-700 text-white rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center gap-2">
+                            <i data-lucide="message-square" class="h-4 w-4"></i>
+                            Plaats reactie
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Login Prompt (logged out users) -->
+            <div id="commentLoginPrompt"
+                class="mb-8 p-6 bg-gradient-to-r from-primary-50 via-accent-50 to-primary-50 dark:from-primary-900/20 dark:via-accent-900/20 dark:to-primary-900/20 rounded-2xl border-2 border-dashed border-primary-300 dark:border-primary-700 shadow-sm">
+                <div class="flex items-center gap-4">
+                    <div class="bg-gradient-to-br from-primary-500 to-accent-500 p-4 rounded-xl shadow-lg">
+                        <i data-lucide="message-square" class="h-7 w-7 text-white"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1">
+                            Doe mee aan de discussie
+                        </h3>
+                        <p class="text-slate-600 dark:text-slate-400">
+                            <button id="loginToComment"
+                                class="text-primary-600 dark:text-primary-400 hover:text-accent-600 dark:hover:text-accent-400 font-bold underline underline-offset-2 transition-colors">
+                                Log in
+                            </button> om een reactie te plaatsen en mee te discussiëren.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments List -->
+            <div id="commentsList" class="space-y-6">
+                <!-- Comments will be loaded here -->
+            </div>
+
+            <!-- No Comments -->
+            <div id="noComments"
+                class="text-center py-16 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800/50 dark:to-slate-900/50 rounded-2xl border-2 border-dashed border-slate-200 dark:border-slate-700">
+                <div
+                    class="bg-slate-200 dark:bg-slate-700 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="message-square" class="h-10 w-10 text-slate-400"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-700 dark:text-slate-300 mb-2">
+                    Nog geen reacties
+                </h3>
+                <p class="text-slate-600 dark:text-slate-400">
+                    Wees de eerste om je gedachten te delen!
+                </p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-primary-900 text-white mt-16 py-12 border-t-4 border-accent-500">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Politie Forum Nederland</h3>
+                    <p class="text-primary-200 text-sm">
+                        Het grootste Nederlandse forum over politie, veiligheid en justitie.
+                    </p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Quick Links</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/" class="text-primary-200 hover:text-white transition-colors">Home</a></li>
+                        <li><a href="/nieuws" class="text-primary-200 hover:text-white transition-colors">Nieuws</a>
+                        </li>
+                        <li><a href="/categorieen"
+                                class="text-primary-200 hover:text-white transition-colors">Categorieën</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Informatie</h3>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="/over" class="text-primary-200 hover:text-white transition-colors">Over ons</a>
+                        </li>
+                        <li><a href="/privacy" class="text-primary-200 hover:text-white transition-colors">Privacy</a>
+                        </li>
+                        <li><a href="/voorwaarden"
+                                class="text-primary-200 hover:text-white transition-colors">Voorwaarden</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold mb-4">Contact</h3>
+                    <p class="text-primary-200 text-sm mb-2">
+                        <a href="mailto:info@politie-forum.nl" class="hover:text-white transition-colors">
+                            info@politie-forum.nl
+                        </a>
+                    </p>
+                    <p class="text-primary-200 text-sm mb-4">
+                        <a href="tel:+31648319167" class="hover:text-white transition-colors">
+                            +31 6 48319167
+                        </a>
+                    </p>
+                    <p class="text-primary-200 text-xs leading-relaxed mb-4">
+                        Sint Olofssteeg 4<br>
+                        1012AK Amsterdam<br>
+                        Netherlands
+                    </p>
+                    <div class="flex gap-3">
+                        <a href="https://x.com/politieforum" target="_blank" rel="me nofollow noreferrer"
+                            class="text-primary-200 hover:text-white transition-colors" aria-label="X (Twitter)">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                            </svg>
+                        </a>
+                        <a href="https://facebook.com/politieforum" target="_blank" rel="me nofollow noreferrer"
+                            class="text-primary-200 hover:text-white transition-colors" aria-label="Facebook">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                            </svg>
+                        </a>
+                        <a href="https://instagram.com/politieforum" target="_blank" rel="me nofollow noreferrer"
+                            class="text-primary-200 hover:text-white transition-colors" aria-label="Instagram">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z" />
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 pt-8 border-t border-primary-800 text-center text-sm text-primary-200">
+                <p>© 2025 Politie Forum Nederland. Alle rechten voorbehouden.</p>
+                <p class="mt-2 text-xs">
+                    Publisher: <a href="https://digestpaper.com" target="_blank" rel="nofollow noreferrer"
+                        class="hover:text-white transition-colors">DigestPaper.com</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase & Comments Script -->
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDCRYKrWUvtOtDAY4TThjlm7AxkzHG-62s",
+            authDomain: "blockchainkix-com-fy.firebaseapp.com",
+            databaseURL: "https://blockchainkix-com-fy-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "blockchainkix-com-fy",
+            storageBucket: "blockchainkix-com-fy.firebasestorage.app",
+            messagingSenderId: "148890561425",
+            appId: "1:148890561425:web:217d6d0f854783f6880830",
+            measurementId: "G-PYNT9RRWHB"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // Get article slug from URL
+        const articleSlug = '{{SLUG}}';
+        let currentUser = null;
+
+        // Theme Toggle
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        html.classList.toggle('dark', savedTheme === 'dark');
+
+        themeToggle.addEventListener('click', () => {
+            const isDark = html.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            lucide.createIcons();
+        });
+
+        // Mobile Menu
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Auth State Observer
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
+            updateUI(user);
+            if (user) {
+                loadComments();
+            } else {
+                loadComments();
+            }
+        });
+
+        // Update UI based on auth state
+        function updateUI(user) {
+            const loginBtn = document.getElementById('loginBtn');
+            const userSection = document.getElementById('userSection');
+            const commentFormContainer = document.getElementById('commentFormContainer');
+            const commentLoginPrompt = document.getElementById('commentLoginPrompt');
+
+            if (user) {
+                loginBtn.classList.add('hidden');
+                userSection.classList.remove('hidden');
+                userSection.classList.add('flex');
+                document.getElementById('userName').textContent = user.displayName || user.email;
+                commentFormContainer.classList.remove('hidden');
+                commentLoginPrompt.classList.add('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userSection.classList.add('hidden');
+                commentFormContainer.classList.add('hidden');
+                commentLoginPrompt.classList.remove('hidden');
+            }
+        }
+
+        // Auth Modal
+        let authModal = null;
+
+        function showAuthModal() {
+            if (!authModal) {
+                authModal = document.createElement('div');
+                authModal.id = 'authModal';
+                authModal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4';
+                authModal.innerHTML = `
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl max-w-md w-full p-8 relative">
+                        <button id="closeAuthModal" class="absolute top-4 right-4 p-2 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors">
+                            <i data-lucide="x" class="h-5 w-5"></i>
+                        </button>
+
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-6">Inloggen</h2>
+
+                        <div id="authError" class="hidden mb-4 p-4 bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 rounded-lg text-sm"></div>
+
+                        <form id="authForm" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">E-mail</label>
+                                <input type="email" id="authEmail" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Wachtwoord</label>
+                                <input type="password" id="authPassword" required class="w-full px-4 py-2 border border-slate-300 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 text-slate-900 dark:text-white focus:ring-2 focus:ring-primary-500">
+                            </div>
+                            <button type="submit" id="authSubmit" class="w-full py-3 bg-gradient-to-r from-primary-600 to-accent-600 hover:from-primary-700 hover:to-accent-700 text-white rounded-lg font-semibold transition-all">
+                                Inloggen
+                            </button>
+                        </form>
+
+                        <div class="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                            <button id="googleSignInBtn" class="w-full py-3 bg-white dark:bg-slate-700 border-2 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-white rounded-lg font-semibold transition-all flex items-center justify-center gap-2">
+                                <svg class="h-5 w-5" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                                Inloggen met Google
+                            </button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(authModal);
+
+                // Close modal handlers
+                document.getElementById('closeAuthModal').addEventListener('click', closeAuthModal);
+                authModal.addEventListener('click', (e) => {
+                    if (e.target === authModal) closeAuthModal();
+                });
+
+                // Email/Password auth
+                document.getElementById('authForm').addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = document.getElementById('authEmail').value;
+                    const password = document.getElementById('authPassword').value;
+                    const errorDiv = document.getElementById('authError');
+
+                    try {
+                        await auth.signInWithEmailAndPassword(email, password);
+                        closeAuthModal();
+                    } catch (error) {
+                        errorDiv.textContent = error.message;
+                        errorDiv.classList.remove('hidden');
+                    }
+                });
+
+                // Google Sign In
+                document.getElementById('googleSignInBtn').addEventListener('click', async () => {
+                    const provider = new firebase.auth.GoogleAuthProvider();
+                    const errorDiv = document.getElementById('authError');
+
+                    try {
+                        await auth.signInWithPopup(provider);
+                        closeAuthModal();
+                    } catch (error) {
+                        errorDiv.textContent = error.message;
+                        errorDiv.classList.remove('hidden');
+                    }
+                });
+
+                lucide.createIcons();
+            }
+            authModal.classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            if (authModal) {
+                authModal.classList.add('hidden');
+            }
+        }
+
+        // Login/Logout
+        document.getElementById('loginBtn').addEventListener('click', showAuthModal);
+        document.getElementById('loginToComment').addEventListener('click', showAuthModal);
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+            await auth.signOut();
+        });
+
+        // Load Comments
+        function loadComments() {
+            const commentsRef = database.ref('comments').orderByChild('articleSlug').equalTo(articleSlug);
+
+            commentsRef.on('value', (snapshot) => {
+                const comments = [];
+                snapshot.forEach((childSnapshot) => {
+                    comments.push({
+                        id: childSnapshot.key,
+                        ...childSnapshot.val()
+                    });
+                });
+
+                // Sort by newest first
+                comments.sort((a, b) => b.createdAt - a.createdAt);
+
+                // Update count
+                document.getElementById('commentsCount').textContent = comments.length;
+
+                // Render comments
+                const commentsList = document.getElementById('commentsList');
+                const noComments = document.getElementById('noComments');
+
+                if (comments.length === 0) {
+                    noComments.classList.remove('hidden');
+                    commentsList.innerHTML = '';
+                } else {
+                    noComments.classList.add('hidden');
+                    commentsList.innerHTML = comments.map(renderComment).join('');
+
+                    // Add reply button event listeners
+                    comments.forEach(comment => {
+                        const replyBtn = document.getElementById(`replyBtn-${comment.id}`);
+                        if (replyBtn) {
+                            replyBtn.addEventListener('click', () => handleReply(comment.id));
+                        }
+                    });
+                }
+
+                // Reinitialize Lucide icons
+                lucide.createIcons();
+            });
+        }
+
+        // Handle Reply
+        let replyingTo = null;
+
+        function handleReply(commentId) {
+            if (!currentUser) {
+                showAuthModal();
+                return;
+            }
+
+            replyingTo = commentId;
+            const replyForm = document.getElementById(`replyForm-${commentId}`);
+            if (replyForm) {
+                replyForm.classList.toggle('hidden');
+                if (!replyForm.classList.contains('hidden')) {
+                    document.getElementById(`replyText-${commentId}`)?.focus();
+                }
+            }
+        }
+
+        // Submit Reply
+        async function submitReply(commentId) {
+            const replyText = document.getElementById(`replyText-${commentId}`).value.trim();
+
+            if (!replyText || replyText.length > 500) return;
+
+            try {
+                const newReplyRef = database.ref('comments').push();
+                await newReplyRef.set({
+                    articleSlug: articleSlug,
+                    authorId: currentUser.uid,
+                    authorName: currentUser.displayName || 'Anoniem',
+                    authorEmail: currentUser.email,
+                    authorPhotoURL: currentUser.photoURL || '',
+                    content: replyText,
+                    createdAt: Date.now(),
+                    likes: 0,
+                    likedBy: [],
+                    parentId: commentId
+                });
+
+                document.getElementById(`replyText-${commentId}`).value = '';
+                document.getElementById(`replyForm-${commentId}`).classList.add('hidden');
+                replyingTo = null;
+            } catch (error) {
+                console.error('Error posting reply:', error);
+                alert('Er is een fout opgetreden bij het plaatsen van je reactie');
+            }
+        }
+
+        // Render Comment
+        function renderComment(comment) {
+            const userName = comment.authorName || 'Anoniem';
+            const userInitial = userName[0].toUpperCase();
+            const date = new Date(comment.createdAt);
+            const formattedDate = date.toLocaleDateString('nl-NL', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            return `
+                <div class="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-800/50 border-2 border-slate-200 dark:border-slate-700 rounded-2xl p-6 hover:shadow-xl hover:border-primary-400 dark:hover:border-primary-500 transition-all">
+                    <div class="flex gap-4">
+                        <div class="flex-shrink-0">
+                            ${comment.authorPhotoURL ?
+                    `<img src="${comment.authorPhotoURL}" alt="${userName}" class="h-14 w-14 rounded-full object-cover ring-4 ring-white dark:ring-slate-700 shadow-lg">` :
+                    `<div class="h-14 w-14 rounded-full bg-gradient-to-br from-primary-500 via-accent-500 to-primary-600 flex items-center justify-center text-white font-bold text-xl ring-4 ring-white dark:ring-slate-700 shadow-lg">
+                                    ${userInitial}
+                                </div>`
+                }
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h4 class="text-lg font-bold text-slate-900 dark:text-white">${userName}</h4>
+                                    <p class="text-sm text-slate-500 dark:text-slate-400 flex items-center gap-2 mt-1">
+                                        <i data-lucide="calendar" class="h-3.5 w-3.5"></i>
+                                        ${formattedDate}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="text-slate-700 dark:text-slate-300 leading-relaxed">
+                                ${escapeHtml(comment.content)}
+                            </div>
+                            <div class="flex items-center gap-4 mt-4">
+                                <button class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-primary-100 dark:hover:bg-primary-900/30 hover:text-primary-600 dark:hover:text-primary-400 transition-all">
+                                    <i data-lucide="thumbs-up" class="h-4 w-4"></i>
+                                    <span>${comment.likes || 0}</span>
+                                </button>
+                                ${currentUser ? `
+                                <button id="replyBtn-${comment.id}" class="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400 hover:bg-accent-100 dark:hover:bg-accent-900/30 hover:text-accent-600 dark:hover:text-accent-400 transition-all">
+                                    <i data-lucide="reply" class="h-4 w-4"></i>
+                                    Reageren
+                                </button>
+                                ` : ''}
+                            </div>
+
+                            <!-- Reply Form -->
+                            ${currentUser ? `
+                            <div id="replyForm-${comment.id}" class="hidden mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                                <form onsubmit="event.preventDefault(); submitReply('${comment.id}');" class="space-y-3">
+                                    <textarea
+                                        id="replyText-${comment.id}"
+                                        placeholder="Schrijf een reactie..."
+                                        rows="3"
+                                        maxlength="500"
+                                        class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg focus:ring-2 focus:ring-accent-500 dark:focus:ring-accent-400 focus:border-transparent resize-none bg-white dark:bg-slate-900 text-slate-900 dark:text-white"
+                                    ></textarea>
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button type="button" onclick="document.getElementById('replyForm-${comment.id}').classList.add('hidden')" class="px-3 py-1.5 text-sm text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white transition-colors">
+                                            Annuleren
+                                        </button>
+                                        <button type="submit" class="px-4 py-1.5 bg-gradient-to-r from-accent-600 to-primary-600 hover:from-accent-700 hover:to-primary-700 text-white rounded-lg text-sm font-semibold transition-all">
+                                            Plaats reactie
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Submit Comment
+        const commentForm = document.getElementById('commentForm');
+        const commentText = document.getElementById('commentText');
+        const charCount = document.getElementById('charCount');
+
+        commentText.addEventListener('input', () => {
+            charCount.textContent = commentText.value.length;
+        });
+
+        commentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!currentUser) {
+                alert('Je moet ingelogd zijn om een reactie te plaatsen');
+                return;
+            }
+
+            const content = commentText.value.trim();
+            if (!content || content.length > 500) return;
+
+            try {
+                const newCommentRef = database.ref('comments').push();
+                await newCommentRef.set({
+                    articleSlug: articleSlug,
+                    authorId: currentUser.uid,
+                    authorName: currentUser.displayName || 'Anoniem',
+                    authorEmail: currentUser.email,
+                    authorPhotoURL: currentUser.photoURL || '',
+                    content: content,
+                    createdAt: Date.now(),
+                    likes: 0,
+                    likedBy: []
+                });
+
+                commentText.value = '';
+                charCount.textContent = '0';
+            } catch (error) {
+                console.error('Error posting comment:', error);
+                alert('Er is een fout opgetreden bij het plaatsen van je reactie');
+            }
+        });
+
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // FAQ Toggle Functionality
+        const faqToggle = document.getElementById('faqToggle');
+        const faqContent = document.getElementById('faq-content');
+        const faqChevron = document.getElementById('faqChevron');
+
+        faqToggle.addEventListener('click', () => {
+            const isExpanded = faqToggle.getAttribute('aria-expanded') === 'true';
+
+            if (isExpanded) {
+                faqContent.style.display = 'none';
+                faqToggle.setAttribute('aria-expanded', 'false');
+                faqToggle.setAttribute('aria-label', 'Toon veelgestelde vragen');
+                faqChevron.style.transform = 'rotate(180deg)';
+            } else {
+                faqContent.style.display = 'block';
+                faqToggle.setAttribute('aria-expanded', 'true');
+                faqToggle.setAttribute('aria-label', 'Verberg veelgestelde vragen');
+                faqChevron.style.transform = 'rotate(0deg)';
+            }
+
+            lucide.createIcons();
+        });
+
+        // Extract FAQ from article content
+        function extractFAQFromContent() {
+            const content = document.querySelector('.prose-custom');
+            const faqList = document.getElementById('faqList');
+
+            if (!content) return;
+
+            // Find all H2 and H3 elements that look like questions
+            const headings = content.querySelectorAll('h2, h3');
+            const faqItems = [];
+
+            headings.forEach((heading, index) => {
+                const text = heading.textContent.trim();
+
+                // Check if heading is a question (contains ?, ends with ?, or starts with typical question words)
+                const isQuestion = text.includes('?') ||
+                    /^(wat|wie|waar|wanneer|hoe|waarom|welke|kunnen|mag|is|zijn)/i.test(text);
+
+                if (isQuestion) {
+                    // Get the next paragraph(s) as answer
+                    let answer = '';
+                    let nextElement = heading.nextElementSibling;
+
+                    while (nextElement && !['H1', 'H2', 'H3'].includes(nextElement.tagName)) {
+                        if (nextElement.tagName === 'P') {
+                            answer += nextElement.textContent.trim() + ' ';
+                            if (answer.length > 300) break; // Max 300 chars per answer
+                        }
+                        nextElement = nextElement.nextElementSibling;
+                    }
+
+                    if (answer.trim()) {
+                        faqItems.push({
+                            question: text,
+                            answer: answer.trim().substring(0, 500) // Max 500 chars
+                        });
+                    }
+                }
+            });
+
+            // Render FAQ items
+            if (faqItems.length > 0) {
+                faqList.innerHTML = faqItems.map((item, index) => `
+                    <div class="bg-gradient-to-br from-slate-50 to-white dark:from-slate-800 dark:to-slate-800/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-5 hover:border-blue-400 dark:hover:border-blue-500 transition-all" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                        <h4 class="text-lg font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-2" itemprop="name">
+                            <i data-lucide="help-circle" class="h-5 w-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" aria-hidden="true"></i>
+                            <span>${escapeHtml(item.question)}</span>
+                        </h4>
+                        <div class="text-slate-700 dark:text-slate-300 leading-relaxed pl-7" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                            <p itemprop="text">${escapeHtml(item.answer)}</p>
+                        </div>
+                    </div>
+                `).join('');
+
+                lucide.createIcons();
+            } else {
+                // Show "no FAQ" message (already in HTML)
+                faqList.innerHTML = `
+                    <div class="text-center py-8 text-slate-500 dark:text-slate-400">
+                        <i data-lucide="info" class="h-8 w-8 mx-auto mb-2 opacity-50"></i>
+                        <p>Geen FAQ-items beschikbaar voor dit artikel.</p>
+                    </div>
+                `;
+                lucide.createIcons();
+            }
+        }
+
+        // 🔥 HYBRID SEO: Static HTML + Live Data
+        // This page is pre-rendered for instant SEO, but we fetch live comment count after load
+        window.addEventListener('load', () => {
+            // Update comment count from Firebase (already loaded via loadComments)
+            // This ensures search engines see static content, but users see live data
+            console.log('✅ Static HTML loaded (SEO optimized) + Live Firebase data synced');
+
+            // Extract and display FAQ items from content
+            extractFAQFromContent();
+        });
+    </script>
+
+</body>
+
+</html>

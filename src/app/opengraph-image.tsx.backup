@@ -1,0 +1,101 @@
+import { ImageResponse } from "next/og";
+
+export const runtime = "edge";
+
+export const size = {
+  width: 1200,
+  height: 630,
+};
+
+export const contentType = "image/png";
+
+export default async function Image() {
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          fontSize: 60,
+          background:
+            "linear-gradient(135deg, #001f4d 0%, #004bbf 50%, #0056e0 100%)",
+          width: "100%",
+          height: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "white",
+          padding: "40px",
+        }}
+      >
+        {/* Shield Icon */}
+        <div
+          style={{
+            width: 120,
+            height: 140,
+            background: "#e60000",
+            clipPath:
+              "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+            marginBottom: 30,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            style={{
+              width: 90,
+              height: 105,
+              background: "#ffffff",
+              clipPath:
+                "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+            }}
+          />
+        </div>
+
+        {/* Title */}
+        <div
+          style={{
+            display: "flex",
+            fontWeight: "bold",
+            marginBottom: 15,
+            textAlign: "center",
+          }}
+        >
+          Politie Forum Nederland
+        </div>
+
+        {/* Subtitle */}
+        <div
+          style={{
+            fontSize: 32,
+            color: "#b3d1ff",
+            textAlign: "center",
+            marginBottom: 15,
+          }}
+        >
+          Het Grootste Nederlandse Politie Forum
+        </div>
+
+        {/* Keywords */}
+        <div
+          style={{
+            fontSize: 24,
+            color: "#80b3ff",
+            textAlign: "center",
+            display: "flex",
+            gap: "20px",
+          }}
+        >
+          <span>Politie Discussies</span>
+          <span>•</span>
+          <span>Politie News</span>
+          <span>•</span>
+          <span>Politie Nederland</span>
+        </div>
+      </div>
+    ),
+    {
+      ...size,
+    }
+  );
+}

@@ -1,0 +1,352 @@
+"use client";
+
+import { createUser, getUser } from "@/lib/database";
+import { User } from "@/lib/types";
+import type {
+    Auth,
+    FacebookAuthProvider,
+    User as FirebaseUser,
+    GithubAuthProvider,
+    GoogleAuthProvider,
+    OAuthProvider,
+    TwitterAuthProvider,
+} from "firebase/auth";
+import React, { createContext, useContext, useEffect, useState } from "react";
+
+// Lazy load Firebase Auth - only when AuthProvider is actually rendered
+let auth: Auth | null = null;
+async function getAuth() {
+  if (auth) return auth;
+  const [{ auth: firebaseAuth }, { getAuth: getAuthFn }] = await Promise.all([
+    import("@/lib/firebase"),
+    import("firebase/auth"),
+  ]);
+  auth = firebaseAuth;
+  return auth;
+}
+
+interface AuthContextType {
+  currentUser: FirebaseUser | null;
+  userData: User | null;
+  loading: boolean;
+  signUp: (
+    email: string,
+    password: string,
+    displayName: string
+  ) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
+  signInWithFacebook: () => Promise<void>;
+  signInWithTwitter: () => Promise<void>;
+  signInWithGithub: () => Promise<void>;
+  signInWithMicrosoft: () => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  signInAnonymously: () => Promise<void>;
+  signOut: () => Promise<void>;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    // Return null state when Auth is not needed (homepage, articles, etc.)
+    // This allows components to gracefully handle no-auth state
+    return {
+      currentUser: null,
+      userData: null,
+      loading: false,
+      signUp: async () => { throw new Error("Auth not loaded"); },
+      signIn: async () => { throw new Error("Auth not loaded"); },
+      signInWithGoogle: async () => { throw new Error("Auth not loaded"); },
+      signInWithFacebook: async () => { throw new Error("Auth not loaded"); },
+      signInWithTwitter: async () => { throw new Error("Auth not loaded"); },
+      signInWithGithub: async () => { throw new Error("Auth not loaded"); },
+      signInWithMicrosoft: async () => { throw new Error("Auth not loaded"); },
+      signInWithApple: async () => { throw new Error("Auth not loaded"); },
+      signInAnonymously: async () => { throw new Error("Auth not loaded"); },
+      signOut: async () => { throw new Error("Auth not loaded"); },
+    } as AuthContextType;
+  }
+  return context;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
+  const [userData, setUserData] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  async function signUp(email: string, password: string, displayName: string) {
+    const authInstance = await getAuth();
+    if (!authInstance) throw new Error("Firebase auth not initialized");
+    const { createUserWithEmailAndPassword, updateProfile } = await import("firebase/auth");
+    if (result.user) {
+      const { updateProfile } = await import("firebase/auth");
+      await updateProfile(result.user, { displayName });
+    if (result.user) {
+      await updateProfile(result.user, { displayName });
+
+      // Create user profile in database
+      const newUser: Omit<User, "uid"> = {
+        email,
+        displayName,
+        createdAt: Date.now(),
+        role: "user",
+        posts: 0,
+        reputation: 0,
+      };
+
+      await createUser(result.user.uid, newUser);
+    }
+  }
+  async function signIn(email: string, password: string) {
+    const authInstance = await getAuth();
+    if (!authInstance) throw new Error("Firebase auth not initialized");
+    const { signInWithEmailAndPassword } = await import("firebase/auth");
+    await signInWithEmailAndPassword(authInstance, email, password);
+  async function signInWithGoogle() {
+    const authInstance = await getAuth();
+    if (!authInstance) throw new Error("Firebase auth not initialized");
+    const { GoogleAuthProvider, signInWithPopup } = await import("firebase/auth");
+    try {
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      const result = await signInWithPopup(authInstance, provider);
+      // Add custom parameters to help with storage issues
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      const result = await signInWithPopup(auth, provider);
+
+      if (result.user) {
+        // Check if user exists in database
+        const existingUser = await getUser(result.user.uid);
+
+        if (!existingUser) {
+          // Create new user profile
+          const newUser: Omit<User, "uid"> = {
+            email: result.user.email || "",
+            displayName: result.user.displayName || "Gebruiker",
+            photoURL: result.user.photoURL || undefined,
+            createdAt: Date.now(),
+            role: "user",
+            posts: 0,
+            reputation: 0,
+          };
+
+          await createUser(result.user.uid, newUser);
+        } else if (result.user.photoURL && existingUser.photoURL !== result.user.photoURL) {
+          // Update photoURL if changed
+          await createUser(result.user.uid, { ...existingUser, photoURL: result.user.photoURL });
+        }
+      }
+    } catch (error: any) {
+      // Better error handling for storage issues
+      if (error.code === 'auth/web-storage-unsupported' ||
+          error.code === 'auth/operation-not-supported-in-this-environment') {
+        console.error('Browser storage is disabled. Please enable cookies and local storage.');
+        throw new Error('Browser storage is vereist. Schakel cookies en local storage in.');
+      }
+      throw error;
+    }
+  }
+
+  async function signInWithFacebook() {
+    if (!auth) throw new Error("Firebase auth not initialized");
+    const provider = new FacebookAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user) {
+      const existingUser = await getUser(result.user.uid);
+
+      if (!existingUser) {
+        const newUser: Omit<User, "uid"> = {
+          email: result.user.email || "",
+          displayName: result.user.displayName || "Gebruiker",
+          photoURL: result.user.photoURL || undefined,
+          createdAt: Date.now(),
+          role: "user",
+          posts: 0,
+          reputation: 0,
+        };
+
+        await createUser(result.user.uid, newUser);
+      }
+    }
+  }
+
+  async function signInWithTwitter() {
+    if (!auth) throw new Error("Firebase auth not initialized");
+    const provider = new TwitterAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user) {
+      const existingUser = await getUser(result.user.uid);
+
+      if (!existingUser) {
+        const newUser: Omit<User, "uid"> = {
+          email: result.user.email || "",
+          displayName: result.user.displayName || "Gebruiker",
+          photoURL: result.user.photoURL || undefined,
+          createdAt: Date.now(),
+          role: "user",
+          posts: 0,
+          reputation: 0,
+        };
+
+        await createUser(result.user.uid, newUser);
+      }
+    }
+  }
+
+  async function signInWithGithub() {
+    if (!auth) throw new Error("Firebase auth not initialized");
+    const provider = new GithubAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user) {
+      const existingUser = await getUser(result.user.uid);
+
+      if (!existingUser) {
+        const newUser: Omit<User, "uid"> = {
+          email: result.user.email || "",
+          displayName: result.user.displayName || "Gebruiker",
+          photoURL: result.user.photoURL || undefined,
+          createdAt: Date.now(),
+          role: "user",
+          posts: 0,
+          reputation: 0,
+        };
+
+        await createUser(result.user.uid, newUser);
+      }
+    }
+  }
+
+  async function signInWithMicrosoft() {
+    if (!auth) throw new Error("Firebase auth not initialized");
+    const provider = new OAuthProvider("microsoft.com");
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user) {
+      const existingUser = await getUser(result.user.uid);
+
+      if (!existingUser) {
+        const newUser: Omit<User, "uid"> = {
+          email: result.user.email || "",
+          displayName: result.user.displayName || "Gebruiker",
+          photoURL: result.user.photoURL || undefined,
+          createdAt: Date.now(),
+          role: "user",
+          posts: 0,
+          reputation: 0,
+        };
+
+        await createUser(result.user.uid, newUser);
+      }
+    }
+  }
+
+  async function signInWithApple() {
+    if (!auth) throw new Error("Firebase auth not initialized");
+    const provider = new OAuthProvider("apple.com");
+    const result = await signInWithPopup(auth, provider);
+
+    if (result.user) {
+      const existingUser = await getUser(result.user.uid);
+
+      if (!existingUser) {
+        const newUser: Omit<User, "uid"> = {
+          email: result.user.email || "",
+          displayName: result.user.displayName || "Gebruiker",
+          photoURL: result.user.photoURL || undefined,
+          createdAt: Date.now(),
+          role: "user",
+          posts: 0,
+          reputation: 0,
+        };
+
+        await createUser(result.user.uid, newUser);
+      }
+    }
+  }
+
+  async function signInAnonymously() {
+    if (!auth) throw new Error("Firebase auth not initialized");
+    const result = await firebaseSignInAnonymously(auth);
+
+    if (result.user) {
+      const existingUser = await getUser(result.user.uid);
+
+      if (!existingUser) {
+        // Create anonymous user profile
+        const newUser: Omit<User, "uid"> = {
+          email: "",
+          displayName: "Gast",
+          createdAt: Date.now(),
+          role: "user",
+          posts: 0,
+          reputation: 0,
+        };
+
+        await createUser(result.user.uid, newUser);
+      }
+    }
+  }
+
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    
+    (async () => {
+      const authInstance = await getAuth();
+      if (!authInstance) {
+        setLoading(false);
+        return;
+      }
+
+      const { onAuthStateChanged } = await import("firebase/auth");
+      unsubscribe = onAuthStateChanged(authInstance, async (user) => {
+      setLoading(false);
+      return;
+    }
+
+      setLoading(false);
+      });
+    })();
+
+    return () => unsubscribe?.();
+  }, []);onst dbUser = await getUser(user.uid);
+        setUserData(dbUser);
+      } else {
+        setUserData(null);
+      }
+
+      setLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
+  const value: AuthContextType = {
+    currentUser,
+    userData,
+    loading,
+    signUp,
+    signIn,
+    signInWithGoogle,
+    signInWithFacebook,
+    signInWithTwitter,
+    signInWithGithub,
+    signInWithMicrosoft,
+    signInWithApple,
+    signInAnonymously,
+    signOut,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {!loading && children}
+    </AuthContext.Provider>
+  );
+}

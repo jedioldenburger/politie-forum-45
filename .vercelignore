@@ -1,0 +1,21 @@
+# Using Next.js ISR only - no static HTML generation
+# All requests (bots + users) served by Next.js
+
+# Python scripts and configs
+*.py
+__pycache__/
+requirements.txt
+secretkey.json
+
+# Firebase specific
+firebase.json
+database.rules.json
+.firebaserc
+
+# Static templates
+static-article-template*.html
+static-styles.css
+tailwind.static.config.js
+
+# Other build artifacts
+*.report.html

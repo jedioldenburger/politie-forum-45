@@ -1,0 +1,114 @@
+{
+  "name": "Politie Forum Nederland",
+  "short_name": "Politie Forum",
+  "description": "Het grootste Nederlandse forum over politie, veiligheid en justitie. Discussieer mee over actueel politienieuws en deel ervaringen.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0a1931",
+  "theme_color": "#004bbf",
+  "orientation": "portrait-primary",
+  "categories": ["news", "social", "community"],
+  "lang": "nl-NL",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48",
+      "type": "image/x-icon",
+      "purpose": "any"
+    },
+    {
+      "src": "/police_badge_icon_16x16.png",
+      "sizes": "16x16",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/police_badge_icon_32x32.png",
+      "sizes": "32x32",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/police_badge_icon_64x64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/police_badge_icon_128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/police_badge_icon_192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/police_badge_icon_256x256.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/police_badge_icon_512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-full.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/og/politie-forum-1200x630.png",
+      "sizes": "1200x630",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Nieuws",
+      "short_name": "Nieuws",
+      "description": "Bekijk het laatste politienieuws",
+      "url": "/nieuws",
+      "icons": [
+        {
+          "src": "/police_badge_icon_192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Categorieën",
+      "short_name": "Forum",
+      "description": "Bekijk alle forumcategorieën",
+      "url": "/categorieen",
+      "icons": [
+        {
+          "src": "/police_badge_icon_192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
+}
