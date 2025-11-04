@@ -34,6 +34,9 @@ export default function HomepageFAQ({ mode = 'short' }: HomepageFAQProps) {
 
   return (
     <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden" aria-labelledby="faq-heading">
+      <h2 id="faq-heading" className="sr-only">
+        Veelgestelde Vragen (FAQ)
+      </h2>
       <button
         onClick={toggleSection}
         aria-label={sectionExpanded ? "Sluit veelgestelde vragen" : "Open veelgestelde vragen"}
@@ -41,9 +44,9 @@ export default function HomepageFAQ({ mode = 'short' }: HomepageFAQProps) {
         aria-controls="faq-content"
         className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
       >
-        <h2 id="faq-heading" className="text-xl font-bold text-blue-900 dark:text-blue-400">
+        <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
           Veelgestelde Vragen (FAQ)
-        </h2>
+        </span>
         {sectionExpanded ? (
           <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400 flex-shrink-0" aria-hidden="true" focusable="false" />
         ) : (

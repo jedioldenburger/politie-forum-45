@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OpenSearchDescription xmlns="http://a9.com/-/spec/opensearch/1.1/">
+    <ShortName>Politie Forum NL</ShortName>
+    <Description>Zoeken in Politie Forum Nederland - Discussies, Nieuws en Crime Map</Description>
+    <Tags>politie forum nieuws criminaliteit veiligheid justitie</Tags>
+    <Contact>info@politie-forum.nl</Contact>
+    <Url type="text/html" method="get" template="https://politie-forum.nl/zoeken?q={searchTerms}" />
+    <Url type="application/rss+xml" method="get"
+        template="https://politie-forum.nl/feed.xml?q={searchTerms}" />
+    <Language>nl-NL</Language>
+    <Language>nl</Language>
+    <OutputEncoding>UTF-8</OutputEncoding>
+    <InputEncoding>UTF-8</InputEncoding>
+    <Image height="64" width="64" type="image/png">
+        https://politie-forum.nl/police_badge_icon_64x64.png</Image>
+    <Image height="16" width="16" type="image/x-icon">https://politie-forum.nl/favicon.ico</Image>
+    <Query role="example" searchTerms="politie sollicitatie" />
+    <Developer>Politie Forum Nederland</Developer>
+    <Attribution>
+        Zoekresultaten van Politie Forum Nederland zijn auteursrechtelijk beschermd.
+    </Attribution>
+    <SyndicationRight>open</SyndicationRight>
+    <AdultContent>false</AdultContent>
+</OpenSearchDescription>

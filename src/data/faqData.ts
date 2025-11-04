@@ -19,13 +19,13 @@ function autoShorten(text: string, max = 160): string {
 export const rawFaq: Omit<FAQItem, 'shortAnswer'> & { shortAnswer?: string }[] = [
   {
     question: "Wat is Politie Forum Nederland?",
-    shortAnswer: "Het grootste onafhankelijke Nederlandse discussieplatform over politie, veiligheid en criminaliteit.",
-    longAnswer: "Politie Forum Nederland is het grootste Nederlandse discussieplatform over politie, veiligheid, en criminaliteit. Wij bieden een ruimte waar professionals, studenten en geïnteresseerde burgers kunnen discussiëren over actuele politiezaken, rechtspraak en veiligheid in Nederland.",
+    shortAnswer: "Het grootste nederlands politie forum en politie discussie platform waar Nederland over politie praat.",
+    longAnswer: "Politie Forum Nederland is het grootste nederlands politie forum en politie discussie platform waar professionals en geïnteresseerden dagelijks politie praat voeren. Onze politie community biedt een ruimte waar iedereen kan discussiëren over actuele politiezaken, veiligheid, criminaliteit, rechtspraak en justitie in Nederland.",
   },
   {
-    question: "Hoe kan ik lid worden van het forum?",
-    shortAnswer: "Klik op Inloggen → Registreren en meld u aan met e‑mail of Google; daarna kunt u direct posten.",
-    longAnswer: "U kunt zich gratis registreren door te klikken op 'Inloggen' en vervolgens 'Registreren' te kiezen. U kunt zich aanmelden met uw e-mailadres of via Google Sign-In. Na registratie kunt u direct deelnemen aan discussies en reageren op artikelen.",
+    question: "Hoe kan ik lid worden van de politie community?",
+    shortAnswer: "Klik op Inloggen → Registreren; sluit je gratis aan bij onze politie community en praat mee.",
+    longAnswer: "Sluit je gratis aan bij onze politie community door te klikken op 'Inloggen' en vervolgens 'Registreren'. Meld je aan met e-mail of Google Sign-In en begin direct met politie discussie. Na registratie kun je deelnemen aan forum politie gesprekken en reageren op politie nieuws.",
   },
   {
     question: "Kan ik anoniem tips doorgeven?",
@@ -56,6 +56,26 @@ export const rawFaq: Omit<FAQItem, 'shortAnswer'> & { shortAnswer?: string }[] =
     question: "Mag ik artikelen delen of citeren?",
     shortAnswer: "Ja, delen en citeren met bronvermelding; volledige overname alleen na toestemming.",
     longAnswer: "Ja, u mag artikelen delen via sociale media of citeren met bronvermelding. Wij waarderen het als u een link naar het originele artikel opneemt. Voor volledige reproductie van artikelen vragen wij u contact op te nemen met de redactie.",
+  },
+  {
+    question: "Wat is het verschil tussen politie forum en politie discussie?",
+    shortAnswer: "Politie forum is het platform, politie discussie zijn de gesprekken - beide samen vormen onze community.",
+    longAnswer: "Politie Forum Nederland is het platform waar politie discussie plaatsvindt. Ons forum politie biedt gestructureerde categorieën en topics, terwijl politie discussie verwijst naar de dagelijkse gesprekken en politie praat tussen leden. Als politie community combineren we beide: georganiseerd forum met levendige discussies.",
+  },
+  {
+    question: "Waarom kiezen voor dit nederlands politie forum?",
+    shortAnswer: "10.000+ leden, dagelijks actueel nieuws, unieke Crime Map, en de meest actieve politie community.",
+    longAnswer: "Dit nederlands politie forum onderscheidt zich door 10.000+ actieve leden, dagelijks politie nieuws, een unieke interactieve Crime Map met landelijke misdaaddata, en professionele politie discussie. Ons forum politie staat open voor professionals én geïnteresseerden. Als grootste politie community van Nederland bieden we een veilige plek waar iedereen over politie praat.",
+  },
+  {
+    question: "Waar kan ik politie forum sollicitatie tips vinden?",
+    shortAnswer: "In de categorie 'Werving & Sollicitatie' vind je de beste politie sollicitatie tips van ervaren agenten.",
+    longAnswer: "Onze politie forum sollicitatie sectie biedt exclusieve tips van actieve en voormalige politieagenten. Je vindt er politie sollicitatie voorbereiding, motivatiebrief voorbeelden, interview ervaringen en praktische politie forum sollicitatie adviezen. Honderden leden delen hun politie sollicitatie succesverhalen en helpen aspiranten met hun politie forum sollicitatie vragen.",
+  },
+  {
+    question: "Hoe bereid ik me voor op het politie forum assessment?",
+    shortAnswer: "Ons forum biedt gedetailleerde politie assessment ervaringen, oefenmateriaal en begeleiding van leden die het assessment succesvol doorliepen.",
+    longAnswer: "Het politie forum assessment onderdeel bevat uitgebreide informatie over de politie assessment procedure. Je vindt er politie forum assessment ervaringen van recente kandidaten, oefenvragen, tijdlijn overzichten en tips voor elk onderdeel. Veel leden delen hun politie assessment scores en feedback. Onze politie forum assessment community helpt je met voorbereiding op gesprekken, fysieke testen en psychologische screenings.",
   },
 ];
 

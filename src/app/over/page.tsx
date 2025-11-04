@@ -2,9 +2,30 @@ import { Metadata } from "next";
 import OverClient from "./OverClient";
 
 export const metadata: Metadata = {
-  title: "Over DigestPaper & Politie Forum Nederland - AI-Gedreven Nieuws & Community Platform",
-  description: "DigestPaper.com is een innovatieve AI startup gespecialiseerd in geautomatiseerde nieuwsgeneratie via MCP (Model Context Protocol) servers. Politie Forum Nederland is onderdeel van ons content-netwerk voor veiligheid en justitie.",
-  keywords: "digestpaper, ai nieuws, mcp server, automated journalism, cybersecurity, politie forum, ai startup, news automation, model context protocol",
+  title: "Over Politie Forum Nederland - Het Grootste Nederlands Politie Forum",
+  description: "Politie Forum Nederland is het grootste nederlands politie forum sinds 2020. Onze politie community biedt dagelijkse politie discussie, actueel politie nieuws en een unieke Crime Map. Sluit je aan bij 10.000+ leden waar Nederland over politie praat.",
+  keywords: [
+    // Organization identity
+    "politie forum nederland", "nederlands politie forum", "grootste politie forum",
+    "politie community", "politie platform", "forum politie nederland",
+    // Core activities
+    "politie discussie", "politie praat", "politie community platform",
+    "politie forum leden", "politie netwerk", "politie professionals",
+    // Mission & values
+    "politie expertise", "veiligheid forum", "criminaliteit forum",
+    "justitie forum", "politie kennis delen", "politie ervaringen",
+    // History & size
+    "10000 leden", "sinds 2020", "established 2020", "grootste forum",
+    // Features
+    "crime map", "misdaadkaart", "politie nieuws", "dagelijkse updates",
+    "politie artikelen", "politie analyses", "politie data",
+    // Publisher network
+    "digestpaper", "digestpaper publisher network", "ai news automation",
+    "mcp server", "cybersecurity journalism", "investigative journalism",
+    // Target audience
+    "politie professionals", "criminologie studenten", "aspirant agenten",
+    "journalisten", "veiligheidsexperts", "geïnteresseerden politie",
+  ],
   alternates: {
     canonical: "https://politie-forum.nl/over",
   },
@@ -39,7 +60,7 @@ export default function OverPage() {
         "url": "https://politie-forum.nl/over/",
         "name": "Over DigestPaper & Politie Forum Nederland",
         "isPartOf": { "@id": "https://politie-forum.nl/#website" },
-        "primaryImageOfPage": { "@id": "https://politie-forum.nl/#logo" },
+        "primaryImageOfPage": { "@id": "https://politie-forum.nl/politie-logo-uniform.png" },
         "about": { "@id": "https://politie-forum.nl/#publisher" },
         "mainEntity": { "@id": "https://politie-forum.nl/#publisher" },
         "inLanguage": "nl-NL"

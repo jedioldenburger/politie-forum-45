@@ -25,6 +25,7 @@
     "rss-to-forum": "tsx scripts/rss-to-forum.ts"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@types/d3": "^7.4.3",
     "@types/leaflet": "^1.9.20",
     "@types/leaflet.markercluster": "^1.5.6",

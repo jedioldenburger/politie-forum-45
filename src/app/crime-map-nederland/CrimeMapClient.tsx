@@ -95,8 +95,11 @@ export default function CrimeMapClient() {
                 </svg>
                 Terug naar Forum
               </Link>
-              <h1 className="text-4xl font-bold mb-2">Interactieve Kaart Nederland</h1>
-              <p className="text-primary-100 text-lg">Nieuws en meldingen op de kaart van Nederland</p>
+              <h1 className="text-4xl font-bold mb-2">Crime Map Nederland - Interactieve Misdaadkaart</h1>
+              <p className="text-primary-100 text-lg">
+                Bekijk criminaliteit en misdaad per regio op de interactieve Crime Map van Nederland. 
+                Real-time data over politieacties, inbraken, geweld en drugsoverlast per stad en wijk.
+              </p>
             </div>
           </div>
         </header>
@@ -123,8 +126,18 @@ export default function CrimeMapClient() {
           <CrimeMap crimes={crimes} />
         )}
 
-        {/* Statistics Summary */}
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Criminaliteitsstatistieken Nederland */}
+        <div className="mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+            Misdaadstatistieken & Crime Data Nederland
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Analyse van criminaliteit per regio, inclusief inbraak, geweld, drugsoverlast en autodiefstal. 
+            Bekijk crime hotspots en veiligheidscijfers voor Amsterdam, Rotterdam, Den Haag en Utrecht.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-xl shadow-md p-6">
             <div className="flex items-center">
               <div className="bg-primary-100 rounded-full p-3 mr-4">
@@ -133,7 +146,7 @@ export default function CrimeMapClient() {
                 </svg>
               </div>
               <div>
-                <p className="text-sm text-gray-500">Totaal op kaart</p>
+                <p className="text-sm text-gray-500">Criminaliteit op Kaart</p>
                 <p className="text-2xl font-bold text-gray-900">{crimes.length.toLocaleString('nl-NL')}</p>
               </div>
             </div>
@@ -167,11 +180,14 @@ export default function CrimeMapClient() {
           </div>
         </div>
 
-        {/* CTA Section */}
+        {/* CTA Section - Politie Forum Nederland */}
         <div className="mt-8 bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl shadow-lg p-8 text-white text-center">
-          <h3 className="text-2xl font-bold mb-3">Lees de volledige artikelen op het forum</h3>
+          <h3 className="text-2xl font-bold mb-3">
+            Bespreek Criminaliteit & Veiligheid op Politie Forum Nederland
+          </h3>
           <p className="text-primary-100 mb-6">
-            Bekijk alle nieuwsartikelen en discussieer mee op het Politie Forum Nederland
+            Word lid van het grootste Nederlands politie forum. Lees politie nieuws, 
+            discussieer over misdaad per regio en deel jouw ervaringen met 10.000+ leden.
           </p>
           <Link
             href="/forum"

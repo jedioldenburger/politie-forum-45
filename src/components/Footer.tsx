@@ -40,12 +40,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="text-primary-200 hover:text-white transition-colors">
+                <Link href="/privacy" rel="nofollow" className="text-primary-200 hover:text-white transition-colors">
                   Privacy
                 </Link>
               </li>
               <li>
-                <Link href="/voorwaarden" className="text-primary-200 hover:text-white transition-colors">
+                <Link href="/voorwaarden" rel="nofollow" className="text-primary-200 hover:text-white transition-colors">
                   Voorwaarden
                 </Link>
               </li>
@@ -54,17 +54,17 @@ export default function Footer() {
           <div>
             <h3 className="text-lg font-bold mb-4">Contact</h3>
             <p className="text-primary-200 text-sm mb-2">
-              <a href="mailto:jedi@xcom.dev" className="hover:text-white transition-colors">
+              <a href="mailto:jedi@xcom.dev" rel="nofollow" className="hover:text-white transition-colors">
                 jedi@xcom.dev
               </a>
               {" - "}
-              <a href="mailto:info@politie-forum.nl" className="hover:text-white transition-colors">
+              <a href="mailto:info@politie-forum.nl" rel="nofollow" className="hover:text-white transition-colors">
                 info@politie-forum.nl
               </a>
             </p>
             <div className="mb-4">
               <p className="text-primary-200 text-sm">
-                <a href="tel:+31648319167" className="hover:text-white transition-colors" aria-describedby="tip-disclaimer">
+                <a href="tel:+31648319167" rel="nofollow" className="hover:text-white transition-colors" aria-describedby="tip-disclaimer">
                   +31 6 48319167
                 </a>
               </p>

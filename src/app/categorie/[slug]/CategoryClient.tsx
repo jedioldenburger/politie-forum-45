@@ -70,8 +70,13 @@ export default function CategoryClient({ category, articles, allCategories }: Pr
                 <MessageSquare className="h-8 w-8 text-white" aria-hidden="true" />
               </div>
               <div className="flex-1">
-                <h1 className="text-3xl font-bold mb-3">{category.name}</h1>
-                <p className="text-lg text-blue-100">{category.description}</p>
+                <h1 className="text-3xl font-bold mb-3">{category.name} - Politie Forum Nederland</h1>
+                <p className="text-lg text-blue-100">
+                  {category.description}
+                  {category.slug === 'werving-sollicitatie' && ' Lees politie sollicitatie ervaringen, assessment tips en carrière advies van 10.000+ leden.'}
+                  {category.slug === 'criminaliteit-opsporing' && ' Bespreek misdaad, opsporing en forensisch onderzoek met politie experts.'}
+                  {category.slug === 'cybersecurity-digitale-veiligheid' && ' Alles over cybercrime, digitale opsporing en online veiligheid.'}
+                </p>
                 <div className="flex items-center gap-6 mt-4 text-sm">
                   <span className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" aria-hidden="true" />

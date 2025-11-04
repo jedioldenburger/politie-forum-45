@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 
 import {
     AlertCircle,
+    Briefcase,
     ChevronDown,
     ChevronUp,
     Coffee,
@@ -34,6 +35,7 @@ export type Article = {
   author?: string;
   featured?: boolean;
   datePublished?: string;
+  category?: string;
 };
 
 type Props = {
@@ -50,7 +52,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
   const [showVideo, setShowVideo] = useState(false);
   const [videoPlayCount, setVideoPlayCount] = useState(0);
   const [expandedCategories, setExpandedCategories] = useState<string[]>([
-    "forum-artikelen",
+    "forum-artikelen", // Featured content open by default for SEO
   ]);
 
   // Fade out hero after 5 seconds, then show video
@@ -100,7 +102,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
 
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
         {/* Breaking News Banner */}
-        <div className="bg-gradient-to-r from-red-800 to-red-900 text-white py-2 px-4 overflow-hidden" role="region" aria-label="Breaking nieuws">
+        <div className="bg-gradient-to-r from-red-800 to-red-900 text-white py-2 px-4 overflow-hidden" role="region" aria-label="Breaking nieuws" aria-live="polite">
           <div className="max-w-7xl mx-auto flex items-center gap-4">
             <span className="font-bold uppercase text-sm whitespace-nowrap">
               BREAKING NEWS:
@@ -110,8 +112,9 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                 <span className="whitespace-nowrap px-4">
                   ⚠️ <a href="https://hetnieuws.app" target="_blank" rel="noopener noreferrer nofollow sponsored" className="font-bold hover:underline">HETNIEUWS.APP</a> voor het laatste Nieuws uit Nederland en de Wereld ⚠️
                 </span>
+                {/* Duplicate for seamless marquee - text only, no duplicate link */}
                 <span className="whitespace-nowrap px-4" aria-hidden="true">
-                  ⚠️ <a href="https://hetnieuws.app" target="_blank" rel="noopener noreferrer nofollow sponsored" className="font-bold hover:underline">HETNIEUWS.APP</a> voor het laatste Nieuws uit Nederland en de Wereld ⚠️
+                  ⚠️ HETNIEUWS.APP voor het laatste Nieuws uit Nederland en de Wereld ⚠️
                 </span>
               </div>
             </div>
@@ -132,22 +135,24 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
         <div className="max-w-7xl mx-auto px-4 py-8">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Forum Content */}
-            <main className="lg:col-span-2 space-y-6">
+            <section className="lg:col-span-2 space-y-6">
+              {/* Permanent H1 for SEO (always present, visible when hero shows) */}
+              <h1 className={heroVisible ? "text-3xl font-bold mb-4 text-white" : "sr-only"}>
+                Politie Forum Nederland - Het Grootste Politie Forum
+              </h1>
+              
               {/* Forum Header - Fades out after 5 seconds */}
               {heroVisible && (
                 <div className="bg-gradient-to-r from-blue-900 to-blue-800 dark:from-blue-950 dark:to-blue-900 rounded-2xl p-8 text-white shadow-xl transition-opacity duration-1000">
-                  <p className="text-3xl font-bold mb-4">
-                    Politie Forum Nederland - Het Grootste Politie Forum van Nederland
-                  </p>
                   <div className="space-y-3 text-base leading-relaxed">
                     <p className="hero-text">
-                      Welkom bij het grootste politie forum van Nederland. Dit politie forum is dé ontmoetingsplaats voor iedereen die geïnteresseerd is in politie, veiligheid, criminaliteit en justitie in Nederland en België.
+                      Welkom bij het grootste <strong>veiligheidsforum</strong> van Nederland en het meest actieve <strong>politie forum</strong>. Deze <strong>community</strong> is dé ontmoetingsplaats waar Nederland over <strong>justitie en veiligheid</strong> praat - van criminaliteit en forensisch onderzoek tot rechtspraak.
                     </p>
                     <p className="opacity-95">
-                      <strong>Politie Forum Nederland</strong> biedt dagelijks actueel nieuws, diepgaande analyses en levendige discussies over politiezaken. Of je nu politieagent bent, student criminologie, journalist, jurist of gewoon geïnteresseerd in veiligheidsvraagstukken - hier vind je gelijkgestemden en experts.
+                      <strong>Politie Forum Nederland</strong> is meer dan een forum - het is een levendige community waar dagelijks <strong>expertise wordt gedeeld</strong>. Onze politie professionals, <strong>criminologie studenten</strong>, journalisten en <strong>veiligheidsexperts</strong> delen kennis en ervaringen over politiewerk en rechtshandhaving.
                     </p>
                     <p className="opacity-90">
-                      Bespreek actuele incidenten, deel jouw ervaringen met de politie, blijf op de hoogte van ontwikkelingen in politieorganisaties, en verdiep je in onderwerpen zoals misdaadpreventie, politietactieken, rechtspraak en forensisch onderzoek. Ons politie forum biedt een veilige omgeving voor open en respectvolle discussies.
+                      Discussieer over actuele <strong>politieacties</strong>, sollicitatieprocedures, <strong>assessmentcentra</strong> en politieopleidingen. Deel ervaringen, stel vragen over <strong>forensische opsporing</strong> en praat mee in onze open community. Dit platform biedt een veilige omgeving voor constructieve dialoog over <strong>criminaliteitsbestrijding en veiligheidsvraagstukken</strong>.
                     </p>
                   </div>
                 </div>
@@ -190,9 +195,111 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                 </div>
               )}
 
+              {/* Populaire Forum Artikelen (SSR + ISR) - MOVED UP for SEO (featured content first) */}
+              <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden" aria-labelledby="populaire-forum-artikelen">
+                <h2 id="populaire-forum-artikelen" className="sr-only">
+                  Nieuws en Forum Artikelen
+                </h2>
+                <button
+                  onClick={() => toggleCategory("forum-artikelen")}
+                  aria-label={expandedCategories.includes("forum-artikelen") ? "Sluit forum artikelen" : "Open forum artikelen"}
+                  aria-expanded={expandedCategories.includes("forum-artikelen")}
+                  aria-controls="forum-artikelen-content"
+                  className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
+                >
+                  <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
+                    Nieuws en Forum Artikelen
+                  </span>
+                  {expandedCategories.includes("forum-artikelen") ? (
+                    <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
+                  )}
+                </button>
+
+                {expandedCategories.includes("forum-artikelen") && (
+                  <div id="forum-artikelen-content" className="divide-y divide-slate-200 dark:divide-slate-700">
+                    {featuredArticles.length ? (
+                      featuredArticles.map((article, index) => {
+                        const categoryColors = [
+                          "from-blue-500 to-blue-600",
+                          "from-green-500 to-green-600",
+                          "from-purple-500 to-purple-600",
+                          "from-orange-500 to-orange-600",
+                          "from-red-500 to-red-600",
+                        ];
+                        const categoryColor = categoryColors[index % categoryColors.length];
+
+                        return (
+                          <article
+                            key={article.slug}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                          >
+                            <Link
+                              className="block p-5"
+                              href={`/nieuws/${article.slug}/`}
+                              aria-label={`Lees artikel: ${article.title}`}
+                            >
+                              <div className="flex gap-4">
+                                <div
+                                  className={`flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br ${categoryColor} flex items-center justify-center shadow-lg`}
+                                >
+                                  <Shield className="h-7 w-7 text-white" aria-hidden="true" focusable="false" />
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">
+                                      {article.category || "Nieuws"}
+                                    </span>
+                                  </div>
+                                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug">
+                                    {article.title}
+                                  </h3>
+                                  {article.excerpt && (
+                                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
+                                      {article.excerpt}
+                                    </p>
+                                  )}
+                                  <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+                                    <span className="flex items-center gap-1">
+                                      <Users className="h-3.5 w-3.5" aria-hidden="true" focusable="false" />
+                                      0 reacties
+                                    </span>
+                                    <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
+                                      Lees meer →
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </Link>
+                          </article>
+                        );
+                      })
+                    ) : (
+                      <div className="p-8 text-center text-slate-500 dark:text-slate-400">
+                        <p>Geen artikelen gevonden</p>
+                      </div>
+                    )}
+
+                    <div className="p-5 bg-slate-50 dark:bg-slate-700/30 text-center">
+                      <Link
+                        className="inline-flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors"
+                        href="/nieuws/"
+                      >
+                        Bekijk alle Artikelen
+                        <ChevronDown className="h-4 w-4 rotate-[-90deg]" aria-hidden="true" focusable="false" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </section>
+
               {/* Why Join Section - Collapsible */}
               <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden" aria-labelledby="waarom-lid-worden">
-                <h1 className="sr-only">Politie Forum Nederland - #1 Politie Forum 10.000+ Leden</h1>
+                <h2 id="waarom-lid-worden" className="sr-only">
+                  Waarom Lid Worden van Politie Forum Nederland?
+                </h2>
                 <button
                   onClick={() => toggleCategory("waarom-lid-worden")}
                   aria-label={expandedCategories.includes("waarom-lid-worden") ? "Sluit waarom lid worden" : "Open waarom lid worden"}
@@ -200,9 +307,9 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   aria-controls="waarom-lid-worden-content"
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
-                  <h2 id="waarom-lid-worden" className="text-xl font-bold text-blue-900 dark:text-blue-400">
+                  <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
                     Waarom Lid Worden van Politie Forum Nederland?
-                  </h2>
+                  </span>
                   {expandedCategories.includes("waarom-lid-worden") ? (
                     <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   ) : (
@@ -282,6 +389,9 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
 
               {/* DigestPaper Network Section - Collapsible */}
               <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden" aria-labelledby="digestpaper-network">
+                <h2 id="digestpaper-network" className="sr-only">
+                  DigestPaper Publisher Network
+                </h2>
                 <button
                   onClick={() => toggleCategory("digestpaper-network")}
                   aria-label={expandedCategories.includes("digestpaper-network") ? "Sluit DigestPaper netwerk" : "Open DigestPaper netwerk"}
@@ -289,9 +399,20 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   aria-controls="digestpaper-network-content"
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
-                  <h2 id="digestpaper-network" className="text-xl font-bold text-blue-900 dark:text-blue-400">
-                    DigestPaper Publisher Network
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/politie-future.png"
+                      alt="Toekomst politie technologie - AI-gedreven politie nieuws en digitale veiligheid"
+                      title="DigestPaper Publisher Network - Toekomst Politie"
+                      className="w-12 h-12 rounded-full object-cover hidden sm:block"
+                      loading="lazy"
+                      width={48}
+                      height={48}
+                    />
+                    <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
+                      DigestPaper Publisher Network
+                    </span>
+                  </div>
                   {expandedCategories.includes("digestpaper-network") ? (
                     <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   ) : (
@@ -541,105 +662,132 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
             )}
               </section>
 
-              {/* Populaire Forum Artikelen (SSR + ISR) */}
-              <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden" aria-labelledby="populaire-forum-artikelen">
+              {/* Helpful Resources Section - Phase 3 Long-Tail Keywords - Collapsible */}
+              <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden mb-8" aria-labelledby="hulpbronnen">
+                <h2 id="hulpbronnen" className="sr-only">
+                  Populaire Hulpbronnen
+                </h2>
                 <button
-                  onClick={() => toggleCategory("forum-artikelen")}
-                  aria-label={expandedCategories.includes("forum-artikelen") ? "Sluit forum artikelen" : "Open forum artikelen"}
-                  aria-expanded={expandedCategories.includes("forum-artikelen")}
-                  aria-controls="forum-artikelen-content"
+                  onClick={() => toggleCategory("hulpbronnen")}
+                  aria-label={expandedCategories.includes("hulpbronnen") ? "Sluit populaire hulpbronnen" : "Open populaire hulpbronnen"}
+                  aria-expanded={expandedCategories.includes("hulpbronnen")}
+                  aria-controls="hulpbronnen-content"
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
-                  <h2 id="populaire-forum-artikelen" className="text-xl font-bold text-blue-900 dark:text-blue-400">
-                    Nieuws en Forum Artikelen
-                  </h2>
-                  {expandedCategories.includes("forum-artikelen") ? (
+                  <div className="flex items-center gap-3">
+                    <img
+                      src="/politie-man-1.png"
+                      alt="Nederlandse politieagent - Professionele politie forum begeleiding voor sollicitatie en assessment"
+                      title="Politie Forum Begeleiding - Sollicitatie & Assessment"
+                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-600 hidden sm:block"
+                      loading="lazy"
+                      width={48}
+                      height={48}
+                    />
+                    <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
+                      Populaire Hulpbronnen
+                    </span>
+                  </div>
+                  {expandedCategories.includes("hulpbronnen") ? (
                     <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   ) : (
                     <ChevronDown className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   )}
                 </button>
 
-                {expandedCategories.includes("forum-artikelen") && (
-                  <div id="forum-artikelen-content" className="divide-y divide-slate-200 dark:divide-slate-700">
-                    {featuredArticles.length ? (
-                      featuredArticles.map((article, index) => {
-                        const categoryColors = [
-                          "from-blue-500 to-blue-600",
-                          "from-green-500 to-green-600",
-                          "from-purple-500 to-purple-600",
-                          "from-orange-500 to-orange-600",
-                          "from-red-500 to-red-600",
-                        ];
-                        const categoryColor = categoryColors[index % categoryColors.length];
+                {expandedCategories.includes("hulpbronnen") && (
+                  <div id="hulpbronnen-content" className="p-6">
+                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-6">
+                      De meest gezochte informatie op ons politie nieuws forum. Van politie sollicitatie tips tot assessment voorbereiding.
+                    </p>
 
-                        return (
-                          <article
-                            key={article.slug}
-                            className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                          >
-                            <Link
-                              className="block p-5"
-                              href={`/nieuws/${article.slug}/`}
-                              aria-label={`Lees artikel: ${article.title}`}
-                            >
-                              <div className="flex gap-4">
-                                <div
-                                  className={`flex-shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br ${categoryColor} flex items-center justify-center shadow-lg`}
-                                >
-                                  <Shield className="h-7 w-7 text-white" aria-hidden="true" focusable="false" />
-                                </div>
-
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <span className="px-2.5 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 text-xs font-semibold rounded">
-                                      {article.category || "Nieuws"}
-                                    </span>
-                                  </div>
-                                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2 leading-snug">
-                                    {article.title}
-                                  </h3>
-                                  {article.excerpt && (
-                                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-3 line-clamp-2">
-                                      {article.excerpt}
-                                    </p>
-                                  )}
-                                  <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
-                                    <span className="flex items-center gap-1">
-                                      <Users className="h-3.5 w-3.5" aria-hidden="true" focusable="false" />
-                                      0 reacties
-                                    </span>
-                                    <span className="text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-                                      Lees meer →
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </Link>
-                          </article>
-                        );
-                      })
-                    ) : (
-                      <div className="p-8 text-center text-slate-500 dark:text-slate-400">
-                        <p>Geen artikelen gevonden</p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Sollicitatie Resources */}
+                    <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-5">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-600 flex items-center justify-center">
+                          <Briefcase className="h-5 w-5 text-white" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 dark:text-white mb-2">Politie Sollicitatie Tips</h3>
+                          <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
+                            Uitgebreide politie sollicitatie gids met ervaringen van honderden geslaagde kandidaten. Van motivatiebrief tot sollicitatiegesprek.
+                          </p>
+                          <a href="/categorie/werving-sollicitatie" className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline">
+                            Bekijk politie sollicitatie forum →
+                          </a>
+                        </div>
                       </div>
-                    )}
+                    </div>
 
-                    <div className="p-5 bg-slate-50 dark:bg-slate-700/30 text-center">
-                      <Link
-                        className="inline-flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-semibold transition-colors"
-                        href="/nieuws/"
-                      >
-                        Bekijk alle Artikelen
-                        <ChevronDown className="h-4 w-4 rotate-[-90deg]" aria-hidden="true" focusable="false" />
-                      </Link>
+                    {/* Assessment Resources */}
+                    <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-5">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-purple-600 flex items-center justify-center">
+                          <Target className="h-5 w-5 text-white" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 dark:text-white mb-2">Politie Assessment Voorbereiding</h3>
+                          <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
+                            Alles over het politie assessment: oefenvragen, tijdlijnen en succestips. Recente ervaringen en scores van kandidaten.
+                          </p>
+                          <a href="/categorie/werving-sollicitatie" className="text-sm font-semibold text-purple-600 dark:text-purple-400 hover:underline">
+                            Lees politie assessment ervaringen →
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* News Forum Resources */}
+                    <div className="bg-gradient-to-br from-red-50 to-red-100 dark:from-slate-700 dark:to-slate-800 rounded-xl p-5">
+                      <div className="flex items-start gap-3">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-red-600 flex items-center justify-center">
+                          <AlertCircle className="h-5 w-5 text-white" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-slate-900 dark:text-white mb-2">Politie Nieuws Forum</h3>
+                          <p className="text-sm text-slate-700 dark:text-slate-300 mb-3">
+                            Dagelijks het laatste politie nieuws met reacties en analyses. Bespreek actuele zaken in ons politie nieuws forum.
+                          </p>
+                          <a href="/nieuws" className="text-sm font-semibold text-red-600 dark:text-red-400 hover:underline">
+                            Naar politie nieuws forum →
+                          </a>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                )}
+
+                  {/* Additional helpful links */}
+                  <div className="mt-6 pt-6 border-t border-slate-200 dark:border-slate-700">
+                    <h3 className="font-bold text-slate-900 dark:text-white mb-3">Meest Gelezen Onderwerpen</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <a href="/categorie/werving-sollicitatie" className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                        <span className="text-blue-600 dark:text-blue-400">•</span>
+                        Hoe bereid ik me voor op politie sollicitatie?
+                      </a>
+                      <a href="/categorie/werving-sollicitatie" className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                        <span className="text-blue-600 dark:text-blue-400">•</span>
+                        Wat verwachten bij het politie assessment?
+                      </a>
+                      <a href="/nieuws" className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                        <span className="text-blue-600 dark:text-blue-400">•</span>
+                        Laatste politie nieuws en updates
+                      </a>
+                      <a href="/categorie/criminaliteit-opsporing" className="text-sm text-slate-700 dark:text-slate-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors flex items-center gap-2">
+                        <span className="text-blue-600 dark:text-blue-400">•</span>
+                        Actuele criminaliteit discussies
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
               </section>
 
               {/* Forum Categorieën */}
               <section className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg overflow-hidden" aria-labelledby="forum-categorieen">
+                <h2 id="forum-categorieen" className="sr-only">
+                  Forum Categorieën
+                </h2>
                 <button
                   onClick={() => toggleCategory("algemene-categorieen")}
                   aria-label={expandedCategories.includes("algemene-categorieen") ? "Sluit categorieën" : "Open categorieën"}
@@ -647,9 +795,9 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   aria-controls="algemene-categorieen-content"
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
-                  <h2 id="forum-categorieen" className="text-xl font-bold text-blue-900 dark:text-blue-400">
+                  <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
                     Forum Categorieën
-                  </h2>
+                  </span>
                   {expandedCategories.includes("algemene-categorieen") ? (
                     <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   ) : (
@@ -702,7 +850,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   {faqComponent}
                 </div>
               )}
-            </main>
+            </section>
 
             {/* Sidebar */}
             <aside className="space-y-6" aria-label="Sidebar informatie">
@@ -722,6 +870,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                         <img
                           src={currentUser.photoURL}
                           alt="Profile"
+                          title={(currentUser as any).nickname || currentUser.displayName || "User Profile"}
                           className="h-12 w-12 rounded-full"
                           crossOrigin="anonymous"
                           referrerPolicy="no-referrer"
@@ -942,17 +1091,17 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                     </Link>
                   </li>
                   <li>
-                    <Link href="/cookies" itemProp="url" className="text-slate-400 hover:text-white transition-colors">
+                    <Link href="/cookies" rel="nofollow" itemProp="url" className="text-slate-400 hover:text-white transition-colors">
                       <span itemProp="name">Cookies</span>
                     </Link>
                   </li>
                   <li>
-                    <Link href="/disclaimer" itemProp="url" className="text-slate-400 hover:text-white transition-colors">
+                    <Link href="/disclaimer" rel="nofollow" itemProp="url" className="text-slate-400 hover:text-white transition-colors">
                       <span itemProp="name">Disclaimer</span>
                     </Link>
                   </li>
                   <li>
-                    <Link href="/toegankelijkheid" itemProp="url" className="text-slate-400 hover:text-white transition-colors">
+                    <Link href="/toegankelijkheid" rel="nofollow" itemProp="url" className="text-slate-400 hover:text-white transition-colors">
                       <span itemProp="name">Toegankelijkheid</span>
                     </Link>
                   </li>
@@ -964,16 +1113,16 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                 <h3 className="font-bold text-white mb-4 text-lg">Contact</h3>
                 <div className="space-y-3 text-sm">
                   <p className="text-slate-400">
-                    <a href="mailto:jedi@xcom.dev" className="hover:text-white transition-colors">
+                    <a href="mailto:jedi@xcom.dev" rel="nofollow" className="hover:text-white transition-colors">
                       jedi@xcom.dev
                     </a>
                     {" - "}
-                    <a href="mailto:info@politie-forum.nl" className="hover:text-white transition-colors">
+                    <a href="mailto:info@politie-forum.nl" rel="nofollow" className="hover:text-white transition-colors">
                       info@politie-forum.nl
                     </a>
                   </p>
                   <p className="text-slate-400">
-                    <a href="tel:+31648319167" className="hover:text-white transition-colors">
+                    <a href="tel:+31648319167" rel="nofollow" className="hover:text-white transition-colors">
                       +31 6 48319167
                     </a>
                   </p>
@@ -984,8 +1133,8 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
 
                   <div className="pt-2">
                     <p className="text-slate-400 text-xs leading-relaxed">
-                      Sint Olofssteeg 4<br />
-                      1012AK Amsterdam<br />
+                      Sint Olofssteeg 4<br></br>
+                      1012AK Amsterdam<br></br>
                       Netherlands
                     </p>
                   </div>

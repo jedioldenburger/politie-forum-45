@@ -34,9 +34,9 @@ export const metadata: Metadata = {
     template: "%s | Politie Forum Nederland",
   },
   description:
-    "Het grootste Nederlandse forum over de politie. " +
-    "Discussieer over werken bij de politie, sollicitaties, opleidingen en assessments. " +
-    "Deel ervaringen en stel vragen aan duizenden actieve leden.",
+    "Het grootste Nederlandse veiligheidsforum voor politie discussie. " +
+    "Forum voor politie professionals, aspiranten en criminologie studenten: discussieer over sollicitaties, assessments, forensisch onderzoek en opleidingen. " +
+    "Sluit je aan bij onze community van 10.000+ actieve leden — waar Nederland over justitie en veiligheid praat.",
   authors: [
     { name: "Politie Forum Nederland", url: "https://politie-forum.nl/" },
   ],
@@ -44,10 +44,6 @@ export const metadata: Metadata = {
   publisher: "Politie Forum Nederland",
   alternates: {
     canonical: "https://politie-forum.nl/",
-    languages: {
-      "nl-NL": "https://politie-forum.nl/",
-      "x-default": "https://politie-forum.nl/",
-    },
   },
   openGraph: {
     type: "website",
@@ -74,7 +70,20 @@ export const metadata: Metadata = {
     modifiedTime: new Date().toISOString(),
   },
   other: {
-    // Note: og:updated_time should use property, not name (handled in metadata generation)
+    // Note: 'keywords' meta is obsolete per Google guidelines (removed for compliance)
+    "topic": "Veiligheidsforum, Justitienieuws, Criminele Analyse, Forensisch Onderzoek, Politieopleiding",
+    "abstract": "Politie Forum Nederland is het grootste online veiligheidsforum waar professionals en geïnteresseerden discussiëren over criminaliteit, justitie, politieopleidingen en forensische opsporing",
+    // Geo-targeting meta tags for Netherlands (SEO optimization)
+    "geo.region": "NL",
+    "geo.placename": "Amsterdam",
+    "geo.position": "52.3676;4.9041",
+    "ICBM": "52.3676, 4.9041",
+    // Meta AI / Facebook integration for better social sharing
+    "fb:app_id": "123456789", // TODO: Replace with actual Facebook App ID
+    // OG freshness signal (explicit property for crawlers)
+    "og:updated_time": new Date().toISOString(),
+    // IndexNow API key for instant Bing indexing
+    "indexnow-verify": "politie-forum-nl-indexnow-2025",
   },
   twitter: {
     card: "summary_large_image",
@@ -128,10 +137,23 @@ export default function RootLayout({
         {/* Critical CSS for instant LCP render */}
         <link rel="stylesheet" href="/styles/critical.css" />
 
-        {/* DNS prefetch for external resources - micro-optimization */}
-        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-        <link rel="dns-prefetch" href="https://tile.openstreetmap.org" />
+        {/* Hreflang for Dutch content (SEO Audit recommendation) */}
+        <link rel="alternate" hrefLang="nl" href="https://politie-forum.nl/" />
+        <link rel="alternate" hrefLang="nl-NL" href="https://politie-forum.nl/" />
+        <link rel="alternate" hrefLang="x-default" href="https://politie-forum.nl/" />
+
+        {/* RSS/Atom Feed Autodiscovery (canonical, no duplicates) */}
+        <link rel="alternate" type="application/rss+xml" title="Politie Forum Nederland - RSS Feed" href="/feed.xml" />
+        <link rel="alternate" type="application/atom+xml" title="Politie Forum Nederland - Atom Feed" href="/atom.xml" />
+
+        {/* Preload hero image for faster LCP (SEO Audit recommendation) */}
+        <link
+          rel="preload"
+          as="image"
+          href="/og/politie-forum-1200x630.png"
+          type="image/png"
+          fetchPriority="high"
+        />
 
         {/* Consent Mode v2 - Set defaults BEFORE loading GA */}
         <Script id="consent-mode" strategy="beforeInteractive">
@@ -166,6 +188,21 @@ export default function RootLayout({
           id="ga4-lib"
           src="https://www.googletagmanager.com/gtag/js?id=G-PYNT9RRWHB"
           strategy="lazyOnload"
+        />
+
+        {/* OpenSearch for browser search integration */}
+        <link
+          rel="search"
+          type="application/opensearchdescription+xml"
+          title="Politie Forum Nederland"
+          href="/opensearch.xml"
+        />
+
+        {/* Preconnect to IndexNow for faster indexing */}
+        <link
+          rel="preconnect"
+          href="https://api.indexnow.org"
+          crossOrigin="anonymous"
         />
 
         {/* Icons & Manifest */}
@@ -210,23 +247,11 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#001f5c" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
 
-        {/* Feeds & Sitemap */}
+        {/* Sitemap (already linked via robots.txt, single reference) */}
         <link
           rel="sitemap"
           type="application/xml"
           href="/sitemap.xml"
-        />
-        <link
-          rel="alternate"
-          type="application/rss+xml"
-          title="Politie Forum Nederland — RSS"
-          href="/feed.xml"
-        />
-        <link
-          rel="alternate"
-          type="application/atom+xml"
-          title="Politie Forum Nederland — Atom"
-          href="/atom.xml"
         />
 
         {/* JSON-LD Schema: Each page (including homepage) generates its own consolidated graph.
@@ -258,7 +283,7 @@ export default function RootLayout({
           <Analytics />
         </Suspense>
         <ConditionalAuthProvider>
-          <main id="hoofdinhoud" role="main">
+          <main id="hoofdinhoud">
             {children}
           </main>
         </ConditionalAuthProvider>

@@ -10,6 +10,7 @@ export const dynamic = 'force-static';
 export async function generateStaticParams() {
   const categories = [
     'advocaten-rechtbanken',
+    'binnenland',
     'burgerparticipatie-wijkveiligheid',
     'community-cafe-off-topic',
     'criminaliteit-opsporing',
@@ -19,6 +20,7 @@ export async function generateStaticParams() {
     'rechtspraak-beleid',
     'specialisaties-eenheden',
     'technologie-middelen',
+    'werving-sollicitatie',
   ];
 
   return categories.map((slug) => ({
@@ -32,6 +34,11 @@ const CATEGORY_DATA: Record<string, { name: string; description: string; icon: s
     name: 'Advocaten & Rechtbanken',
     description: 'Discussies over advocaten, rechtbanken, en juridische procedures in het Nederlandse rechtssysteem.',
     icon: 'Gavel',
+  },
+  'binnenland': {
+    name: 'Binnenland Nieuws',
+    description: 'Actueel nieuws over politie, veiligheid en justitie in Nederland. Dagelijkse updates over binnenlandse ontwikkelingen.',
+    icon: 'Newspaper',
   },
   'burgerparticipatie-wijkveiligheid': {
     name: 'Burgerparticipatie & Wijkveiligheid',
@@ -78,6 +85,11 @@ const CATEGORY_DATA: Record<string, { name: string; description: string; icon: s
     description: 'Politietechnologie, uitrusting, voertuigen en technische innovaties.',
     icon: 'Cpu',
   },
+  'werving-sollicitatie': {
+    name: 'Werving & Sollicitatie',
+    description: 'Alles over politie sollicitatie, assessment, werving en carrière bij de Nederlandse politie. Tips, ervaringen en begeleiding voor aspirant-agenten.',
+    icon: 'Briefcase',
+  },
 };
 
 export async function generateMetadata({
@@ -94,9 +106,78 @@ export async function generateMetadata({
     };
   }
 
+  // Category-specific keywords
+  const categoryKeywords: Record<string, string[]> = {
+    'werving-sollicitatie': [
+      'politie sollicitatie', 'politie assessment', 'politie werving', 'sollicitatie politie tips',
+      'politie assessment voorbereiding', 'politie assessment ervaring', 'aspirant politieagent',
+      'politie carriere', 'politie vacatures', 'politie recruitment', 'politie sollicitatiegesprek',
+      'politie sollicitatiebrief', 'politie motivatiebrief', 'politie assessment center',
+      'politie fitness test', 'politie psychologische test', 'hoe word ik politieagent',
+      'politie opleiding', 'politieacademie', 'politie stage', 'politie traineeship',
+    ],
+    'criminaliteit-opsporing': [
+      'criminaliteit', 'misdaad', 'opsporing', 'recherche', 'forensisch onderzoek',
+      'criminologie', 'misdaadnieuws', 'cold case', 'opsporingsmethoden', 'politieonderzoek',
+      'forensische opsporing', 'technische recherche', 'dactyloscopie', 'DNA onderzoek',
+      'getuigenverhoor', 'verdachte', 'aanhouding', 'inbeslagname', 'doorzoeken',
+    ],
+    'cybersecurity-digitale-veiligheid': [
+      'cybercrime', 'digitale opsporing', 'online veiligheid', 'hackercrime', 'phishing',
+      'cybersecurity', 'digitale forensica', 'cyberpolitie', 'online fraude', 'ransomware',
+      'datalek', 'identiteitsfraude', 'dark web', 'digitale bewijsvoering', 'CSIRT',
+    ],
+    'advocaten-rechtbanken': [
+      'advocaten', 'rechtbank', 'rechtszaak', 'juridisch', 'strafpleiter', 'verdediging',
+      'rechtshulp', 'advocaat strafrecht', 'rechtbanken nederland', 'gerechtshof',
+      'strafproces', 'hoger beroep', 'cassatie', 'rechtspraak', 'rechter',
+    ],
+    'binnenland': [
+      'binnenland nieuws', 'nederland actueel', 'politie nieuws vandaag', 'veiligheid nederland',
+      'justitie nieuws', 'breaking news nederland', 'dagelijks politie nieuws', 'actueel politie',
+      'binnenlandse zaken', 'nederlandse politie', 'veiligheid actueel', 'criminaliteit nederland',
+      'politie updates', 'nieuws vandaag', 'laatste nieuws politie',
+    ],
+    'rechtspraak-beleid': [
+      'rechtspraak', 'politiebeleid', 'wetgeving', 'strafrecht', 'openbaar ministerie',
+      'justitie', 'strafwetboek', 'politiewet', 'handhaving', 'rechtsstaat',
+      'wet politiegegevens', 'opiumwet', 'wapenwet', 'verkeerswetgeving',
+    ],
+    'specialisaties-eenheden': [
+      'arrestatieteam', 'DSI', 'recherche', 'mobiele eenheid', 'ME', 'AT',
+      'hondenbrigade', 'marine politie', 'luchtvaart politie', 'spoorwegpolitie',
+      'observatieteam', 'specialistische opsporing', 'technische recherche',
+    ],
+    'internationale-politie-europol': [
+      'europol', 'interpol', 'internationale samenwerking', 'grensoverschrijdende criminaliteit',
+      'europese politie', 'schengen', 'europees arrestatiebevel', 'internationale opsporing',
+      'samenwerking politie', 'eurojust', 'frontex',
+    ],
+    'burgerparticipatie-wijkveiligheid': [
+      'buurtpreventie', 'wijkveiligheid', 'burgernet', 'wijkagent', 'veilige buurt',
+      'bewonersorganisatie', 'burgerinitiatief', 'sociale veiligheid', 'buurtbemiddeling',
+      'veiligheidsoverleg', 'overlastbestrijding', 'buurtpreventieteam',
+    ],
+    'publieke-veiligheid-maatschappij': [
+      'publieke veiligheid', 'openbare orde', 'terreurbestrijding', 'radicalisering',
+      'veiligheidsbeleid', 'noodverordening', 'crisis management', 'NCTV',
+      'terrorisme', 'veiligheidsrisico', 'dreigingsniveau', 'nationale veiligheid',
+    ],
+    'technologie-middelen': [
+      'politietechnologie', 'politieuitrusting', 'bodycam', 'ANPR', 'politievoertuigen',
+      'politie wapens', 'dienstwapen', 'peperspray', 'wapenstok', 'kogelwerend vest',
+      'communicatiemiddelen', 'C2000', 'politiesystemen', 'BVH', 'opsporingssystemen',
+    ],
+    'community-cafe-off-topic': [
+      'politie forum community', 'off topic', 'algemene discussie', 'politie humor',
+      'politie cultuur', 'politie anekdotes', 'politie verhalen', 'vrije discussie',
+    ],
+  };
+
   return {
     title: `${category.name} - Politie Forum Nederland`,
     description: category.description,
+    keywords: categoryKeywords[slug] || [],
     alternates: {
       canonical: `https://politie-forum.nl/categorie/${slug}`,
     },

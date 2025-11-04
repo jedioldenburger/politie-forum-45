@@ -3,7 +3,7 @@ import RelatedArticles from "@/components/RelatedArticles";
 import { resolveArticleCategory } from "@/lib/articleCategory";
 import { generateArticleBreadcrumbs } from "@/lib/breadcrumbs";
 import { toISO, toLocalISO } from "@/lib/dates";
-import { getRelatedArticles, getServerArticle, getServerArticleComments } from "@/lib/firebaseAdmin";
+import { getAllArticleSlugs, getRelatedArticles, getServerArticle, getServerArticleComments } from "@/lib/firebaseAdmin";
 import { consolidateKnowledgeGraphs, generateLayoutKnowledgeGraph } from "@/lib/generateCompleteKnowledgeGraph";
 import { ForumThread } from "@/lib/generateForumSchema";
 import { buildThreadSchemaWithCount } from "@/lib/threadSchema";
@@ -16,6 +16,19 @@ const BASE_URL = "https://politie-forum.nl";
 
 // ISR Configuration - automatically rebuild pages every 10 minutes
 export const revalidate = 600; // 10 minutes
+
+// Pre-generate all article pages at build time for optimal performance
+export async function generateStaticParams() {
+  try {
+    const slugs = await getAllArticleSlugs();
+    return slugs.map((slug) => ({
+      slug,
+    }));
+  } catch (error) {
+    console.error("Error generating static params:", error);
+    return [];
+  }
+}
 
 export async function generateMetadata({
   params,
@@ -83,9 +96,21 @@ export async function generateMetadata({
     // Use SEO-optimized title for meta tags if available, otherwise use full title
     const metaTitle = article.seo_title || article.title;
 
+    // Build keywords array: headline first, then tags, category, and base keywords
+    const keywordsArray = [
+      article.title, // ✅ Article headline as primary keyword
+      ...(article.tags || []),
+      article.category || '',
+      'politie nieuws',
+      'politie forum',
+      'criminaliteit',
+      'veiligheid',
+    ].filter(Boolean);
+
     return {
       title: metaTitle, // Template from layout.tsx adds "| Politie Forum Nederland"
       description,
+      keywords: keywordsArray, // ✅ Include article headline and tags as keywords
       category: categoryInfo.metaCategory,
       alternates: {
         canonical: articleUrl,
@@ -147,9 +172,28 @@ export async function generateMetadata({
         label1: "Leestijd",
         data1: `${readingTimeMinutes} minuten`,
       },
-      // ✅ FIXED: og:updated_time MUST use property="og:updated_time", not name
-      // This is handled automatically by Next.js metadata API via openGraph.modifiedTime
-      // No need to add to "other" object
+      // ✅ Additional metadata for Bing, Google News, and Google Discover
+      other: {
+        "og:updated_time": modifiedTime, // Explicit for better crawling
+        // iOS Safari: prevent unwanted telephone link detection
+        "format-detection": "telephone=no",
+        // Bing-specific meta tags for better indexing
+        "msvalidate.01": process.env.NEXT_PUBLIC_BING_WEBMASTER_ID || "", // Add Bing Webmaster verification if available
+        // Google News/Discover specific tags
+        "article:published_time": publishedTime,
+        "article:modified_time": modifiedTime,
+        "article:author": "Politie Forum Redactie",
+        "article:publisher": "https://politie-forum.nl/",
+        "article:section": categoryInfo.articleSection,
+        "news_keywords": article.tags?.slice(0, 10).join(", ") || "", // Max 10 keywords for Google News
+        // Social media integration for Meta AI / Facebook
+        "fb:app_id": "123456789", // TODO: Replace with actual Facebook App ID
+        // Mobile optimization for Google Discover
+        "mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-capable": "yes",
+        "apple-mobile-web-app-status-bar-style": "black-translucent",
+        "theme-color": "#004bbf", // Match site primary color
+      },
     };
   } catch (error) {
     console.error("Error generating metadata:", error);

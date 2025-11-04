@@ -7,15 +7,45 @@ import type { Category } from "@/lib/types";
 import type { Metadata } from "next";
 import ForumClient from "./forum/ForumClient";
 
-// Force dynamic rendering - always fetch fresh data from Firestore
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-export const fetchCache = 'force-no-store';
+// ISR: Rebuild every 5 minutes for fresh content while allowing caching
+export const revalidate = 300; // 5 minutes
 
 export const metadata: Metadata = {
   title: 'Politie Forum Nederland – Politienieuws, Discussies & Crime Map',
   description:
     'Nederlands grootste politie forum met 10.000+ leden. Dagelijks nieuws, expert discussies, Crime Map. Voor professionals en geïnteresseerden. Word nu lid!',
+  keywords: [
+    // Primary keywords
+    'politie forum', 'politie forum nederland', 'nederlands politie forum', 'politieforum',
+    // Career & recruitment
+    'politie sollicitatie', 'politie assessment', 'politie werving', 'sollicitatie politie',
+    'politie sollicitatie tips', 'politie assessment voorbereiding', 'politie assessment tips',
+    'politie werving sollicitatie', 'aspirant politieagent', 'politie carriere',
+    // News & discussion
+    'politie nieuws', 'politie nieuws forum', 'politie discussie', 'politie praat',
+    'actueel politienieuws', 'breaking news politie', 'politie updates', 'politienieuws nederland',
+    // Community & engagement
+    'politie community', 'forum politie', 'politie platform', 'politie netwerk',
+    'politie professionals', 'politie ervaringen', 'politie forum leden',
+    // Crime & safety
+    'criminaliteit', 'misdaad nederland', 'crime map', 'misdaadkaart nederland',
+    'veiligheid nederland', 'opsporing', 'politieacties', 'criminologie',
+    // Legal & justice
+    'justitie', 'rechtspraak', 'strafrecht', 'advocaten', 'rechtbank',
+    'politie wetgeving', 'strafrechtketen', 'openbaar ministerie',
+    // Education & study
+    'criminologie studie', 'politie opleiding', 'politieacademie', 'veiligheid studeren',
+    'forensisch onderzoek', 'criminologie student', 'politie stage',
+    // Specializations
+    'recherche', 'cybercrime', 'digitale opsporing', 'forensische opsporing',
+    'arrestatieteam', 'DSI', 'ME', 'politie specialisaties',
+    // Location-based
+    'politie amsterdam', 'politie rotterdam', 'politie den haag', 'politie utrecht',
+    'nederlandse politie', 'politie nederland', 'landelijke politie',
+    // Long-tail queries
+    'hoe word ik politieagent', 'politie sollicitatie procedure', 'politie assessment ervaring',
+    'wat doet de politie', 'politie taken', 'politie bevoegdheden', 'politie organisatie',
+  ],
   alternates: {
     canonical: 'https://politie-forum.nl/',
   },
@@ -46,6 +76,9 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
+  // Dynamic import for optimized schemas (avoid old deprecated functions)
+  const { generateCompleteHomepageSchema } = await import("@/lib/optimizedSchemas");
+
   // Server-side fetches (UI data only - no schema data needed)
   const [articles, categoriesData] = await Promise.all([
     getLatestArticles(10), // For featured display (optimized for speed)
@@ -59,20 +92,18 @@ export default async function HomePage() {
   const categories: Category[] =
     categoriesData && categoriesData.length > 0 ? categoriesData : getStaticCategories();
 
-  // Generate structural schemas only (layout graph)
-  // Homepage dynamic graph is now empty (no content schemas) to prevent schema stuffing
-  const layoutGraph = generateLayoutKnowledgeGraph();
-  const homepageDynamicGraph = generateHomepageKnowledgeGraph(); // Returns empty graph
-
-  // Consolidate into one unified graph (deduplicated by @id)
-  const unifiedGraph = consolidateKnowledgeGraphs(layoutGraph, homepageDynamicGraph);
+  // Generate complete optimized schema (2025 SEO standards)
+  // Includes: Base (Organization, WebSite, BreadcrumbList, ContactPage, AboutPage)
+  // + WebPage + FAQPage (20 Q&A) + HowTo + VideoObject
+  const completeSchema = generateCompleteHomepageSchema();
 
   return (
     <>
-      {/* Unified JSON-LD Graph (layout + dynamic homepage) */}
+      {/* Optimized JSON-LD Schema - 2025 SEO Standards */}
+      {/* Includes: Base, FAQ, HowTo, Video - All consolidated, no duplicates */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(unifiedGraph, null, 0) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(completeSchema, null, 0) }}
       />
       <ForumClient
         featuredArticles={articles as Article[]}

@@ -4,7 +4,27 @@ import LedenClient from "./LedenClient";
 export const metadata: Metadata = {
   title: "Leden & Community - Politie Forum Nederland",
   description: "Sluit je aan bij 10.000+ leden van Politie Forum Nederland. Registreer gratis en word deel van de grootste Nederlandse politie community.",
-  keywords: "politie forum leden, registreren, politie community, forum aanmelden, politie forum inloggen",
+  keywords: [
+    // Membership actions
+    "politie forum leden", "politie forum registreren", "word lid politie forum",
+    "aanmelden politie forum", "inschrijven politie forum", "politie forum aanmelden",
+    "politie forum inloggen", "politie forum account", "gratis registreren",
+    // Community benefits
+    "politie community", "politie netwerk", "forum community", "politie professionals netwerk",
+    "politie discussies meedoen", "politie kennis delen", "politie ervaringen delen",
+    // Membership features
+    "10000 leden", "grootste politie forum", "gratis lidmaatschap", "forum toegang",
+    "politie nieuws ontvangen", "politie updates", "crime map toegang",
+    // Target audience
+    "voor politieagenten", "voor studenten criminologie", "voor aspirant agenten",
+    "voor journalisten", "voor veiligheidsexperts", "voor geïnteresseerden",
+    // Actions & benefits
+    "politie sollicitatie tips krijgen", "assessment ervaringen lezen", "politie praat mee",
+    "politie discussie voeren", "politie vragen stellen", "politie antwoorden krijgen",
+    // Value propositions
+    "24/7 toegang", "dagelijkse updates", "expert community", "actieve community",
+    "betrouwbare informatie", "politie professionals", "ervaringen uit het veld",
+  ],
   alternates: {
     canonical: "https://politie-forum.nl/leden",
   },

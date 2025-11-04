@@ -1,26 +1,57 @@
 # Robots.txt for Politie Forum Nederland
-# Generated: 2025-10-28T05:21:07+00:00
+# Optimized for Google, Bing, Google News, and Google Discover
+# Updated: 2025-11-04
 
+# Default crawlers (Googlebot, Bingbot, etc.)
 User-agent: *
 Allow: /
 
-# Sitemaps
+# Google News-specific crawler
+User-agent: Googlebot-News
+Allow: /nieuws/
+Allow: /news-sitemap.xml
+Disallow: /api/
+Disallow: /admin/
+Crawl-delay: 0
+
+# Google general crawler
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Google Image crawler (for article images in Google Discover)
+User-agent: Googlebot-Image
+Allow: /
+
+# Bingbot (Microsoft search engine)
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+# Sitemaps (for all crawlers)
 Sitemap: https://politie-forum.nl/sitemap.xml
 Sitemap: https://politie-forum.nl/news-sitemap.xml
 
+# RSS/Atom Feeds
+# RSS 2.0 Feed: https://politie-forum.nl/feed.xml
+# Atom 1.0 Feed: https://politie-forum.nl/atom.xml
+# Google News Feed: https://politie-forum.nl/news-feed.xml
+
 # Disallow admin and API routes
-Disallow: /admin
+Disallow: /admin/
 Disallow: /api/
 
-# Disallow user authentication pages
-Disallow: /login
-Disallow: /register
+# Disallow user authentication pages (not needed for indexing)
+Disallow: /login/
+Disallow: /register/
 
-# Allow crawling of public content
+# Allow crawling of all public content
 Allow: /nieuws/
 Allow: /forum/
 Allow: /categorieen/
-Allow: /crime-map-nederland
+Allow: /crime-map-nederland/
+Allow: /faq/
+Allow: /over/
 
-# Crawl delay (optional, be nice to servers)
+# Crawl delay for general bots (be server-friendly)
 Crawl-delay: 1

@@ -1,5 +1,6 @@
 // lib/firebaseAdmin.ts
 import * as admin from "firebase-admin";
+import { unstable_cache } from "next/cache";
 
 /**
  * 🔥 Initialize Firebase Admin SDK
@@ -288,22 +289,31 @@ export async function getAllArticleSlugs(): Promise<string[]> {
 }
 
 export async function getServerArticle(slug: string): Promise<Article | null> {
-  try {
-    // Try AI-enhanced version first
-    let doc = await adminFirestore.collection("ai_news").doc(slug).get();
+  return unstable_cache(
+    async () => {
+      try {
+        // Try AI-enhanced version first
+        let doc = await adminFirestore.collection("ai_news").doc(slug).get();
 
-    // Fallback to original /news if not found
-    if (!doc.exists) {
-      console.log(`[getServerArticle] ${slug} not in /ai_news, trying /news`);
-      doc = await adminFirestore.collection("news").doc(slug).get();
+        // Fallback to original /news if not found
+        if (!doc.exists) {
+          console.log(`[getServerArticle] ${slug} not in /ai_news, trying /news`);
+          doc = await adminFirestore.collection("news").doc(slug).get();
+        }
+
+        if (!doc.exists) return null;
+        return mapAdminToArticle(slug, doc.data() as AdminFirebaseArticle);
+      } catch (e) {
+        console.error("Error getServerArticle:", e);
+        return null;
+      }
+    },
+    [`article-${slug}`], // Unique cache key per article
+    {
+      revalidate: 600, // 10 minutes
+      tags: [`article-${slug}`, "articles"]
     }
-
-    if (!doc.exists) return null;
-    return mapAdminToArticle(slug, doc.data() as AdminFirebaseArticle);
-  } catch (e) {
-    console.error("Error getServerArticle:", e);
-    return null;
-  }
+  )();
 }
 
 export async function getServerArticles(): Promise<Article[]> {
@@ -429,20 +439,29 @@ export async function getServerCategories(): Promise<Category[]> {
 export async function getServerArticleComments(
   articleSlug: string
 ): Promise<Comment[]> {
-  try {
-    const snap = await adminDb
-      .ref("comments")
-      .orderByChild("articleSlug")
-      .equalTo(articleSlug)
-      .once("value");
-    if (!snap.exists()) return [];
-    const val = snap.val() as Record<string, Omit<Comment, "id">>;
-    const comments = Object.entries(val).map(([id, data]) => ({ id, ...data }));
-    return comments.sort((a, b) => a.createdAt - b.createdAt);
-  } catch (e) {
-    console.error("Error getServerArticleComments:", e);
-    return [];
-  }
+  return unstable_cache(
+    async () => {
+      try {
+        const snap = await adminDb
+          .ref("comments")
+          .orderByChild("articleSlug")
+          .equalTo(articleSlug)
+          .once("value");
+        if (!snap.exists()) return [];
+        const val = snap.val() as Record<string, Omit<Comment, "id">>;
+        const comments = Object.entries(val).map(([id, data]) => ({ id, ...data }));
+        return comments.sort((a, b) => a.createdAt - b.createdAt);
+      } catch (e) {
+        console.error("Error getServerArticleComments:", e);
+        return [];
+      }
+    },
+    [`comments-${articleSlug}`], // Unique cache key per article
+    {
+      revalidate: 600, // 10 minutes
+      tags: [`comments-${articleSlug}`, "comments"]
+    }
+  )();
 }
 
 export async function getServerArticleCommentCount(

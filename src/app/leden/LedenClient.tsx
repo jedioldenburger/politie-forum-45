@@ -15,13 +15,14 @@ export default function LedenClient() {
 
       <main className="flex-grow bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Hero Section */}
+          {/* Hero Section - Politie Forum Registreren */}
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-              Word Lid van Politie Forum Nederland
+              Word Lid van het Grootste Nederlands Politie Forum
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 mb-8">
-              Sluit je aan bij 10.000+ politieprofessionals, studenten en geïnteresseerden
+              Registreer gratis en sluit je aan bij 10.000+ politieprofessionals, criminologie studenten, 
+              aspirant agenten en geïnteresseerden. Dagelijks politie nieuws, sollicitatie tips en expert discussies.
             </p>
           </div>
 
@@ -33,9 +34,10 @@ export default function LedenClient() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Community Toegang</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Politie Community Netwerk</h3>
               <p className="text-slate-600 dark:text-slate-400">
-                Discussieer met professionals uit alle regio's en eenheden van Nederland
+                Politie discussie met professionals, oud-agenten en experts uit alle regio's van Nederland. 
+                Deel politie ervaringen en leer van collega's.
               </p>
             </div>
 
@@ -45,9 +47,10 @@ export default function LedenClient() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Actueel Nieuws</h3>
+              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">Politie Nieuws & Updates</h3>
               <p className="text-slate-600 dark:text-slate-400">
-                Ontvang dagelijks updates over politienieuws en belangrijke ontwikkelingen
+                Dagelijks actueel politienieuws, breaking news over criminaliteit, rechtspraak en veiligheid. 
+                24/7 politie updates en analyses.
               </p>
             </div>
 
@@ -109,11 +112,15 @@ export default function LedenClient() {
             </div>
           </div>
 
-          {/* Who Can Join */}
+          {/* Who Can Join - Politie Forum Aanmelden */}
           <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-8">
             <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6 text-center">
-              Wie Kunnen Lid Worden?
+              Wie Kunnen Lid Worden van Politie Forum Nederland?
             </h2>
+            <p className="text-center text-slate-600 dark:text-slate-400 mb-8">
+              Politie forum registreren is gratis voor politieagenten, aspirant agenten, criminologie studenten, 
+              journalisten en iedereen geïnteresseerd in politie, veiligheid en justitie.
+            </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex items-start gap-4">
                 <div className="flex-shrink-0">

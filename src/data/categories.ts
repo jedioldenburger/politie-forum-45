@@ -8,7 +8,7 @@ export const staticCategories: Category[] = [
     id: "criminaliteit-opsporing",
     name: "Criminaliteit & Opsporing",
     description:
-      "Discussies over opsporingsmethoden, misdrijven, cold cases en actuele onderzoeken binnen Nederland en België.",
+      "Forum politie discussie over opsporingsmethoden, misdrijven, cold cases en actuele onderzoeken. Bespreek politie nieuws over criminaliteit binnen Nederland en België.",
     icon: "Search",
     topicsCount: 0,
     postsCount: 0,
@@ -60,10 +60,21 @@ export const staticCategories: Category[] = [
     createdAt: Date.now(),
   },
   {
+    id: "werving-sollicitatie",
+    name: "Werving & Sollicitatie",
+    description:
+      "De beste politie forum sollicitatie tips van ervaren agenten. Politie sollicitatie voorbereiding, assessment training en ervaringen met politie forum assessment procedures.",
+    icon: "Briefcase",
+    topicsCount: 0,
+    postsCount: 0,
+    order: 6,
+    createdAt: Date.now(),
+  },
+  {
     id: "rechtspraak-beleid",
     name: "Rechtspraak & Beleid",
     description:
-      "Bespreek recente rechtspraak, wetswijzigingen, juridische procedures en beleidskaders rond veiligheid en justitie.",
+      "Diepgaande politie discussie over recente rechtspraak, wetswijzigingen en juridische procedures. Forum politie experts bespreken beleidskaders rond veiligheid en justitie.",
     icon: "Scale",
     topicsCount: 0,
     postsCount: 0,
@@ -107,11 +118,11 @@ export const staticCategories: Category[] = [
     id: "community-cafe-off-topic",
     name: "Community Café / Off Topic",
     description:
-      "Een plek voor informele gesprekken, humor en ontspanning buiten het politiewerk.",
+      "Een plek waar onze politie community informeel politie praat. Humor, ontspanning en persoonlijke verhalen buiten het politiewerk.",
     icon: "Coffee",
     topicsCount: 0,
     postsCount: 0,
-    order: 10,
+    order: 11,
     createdAt: Date.now(),
   },
 ];
