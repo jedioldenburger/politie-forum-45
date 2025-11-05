@@ -1,6 +1,6 @@
 // Google News Sitemap - Article pages only
 // Compliant with Google News Publisher Center requirements
-import { adminFirestore } from "@/lib/firebaseAdmin";
+import { adminFirestore, isFirebaseInitialized } from "@/lib/firebaseAdmin";
 
 export const revalidate = 600; // Revalidate every 10 minutes for fresh news
 
@@ -8,6 +8,23 @@ export async function GET() {
   const baseUrl = "https://politie-forum.nl";
 
   try {
+    // Check if Firebase is initialized
+    if (!adminFirestore || !isFirebaseInitialized()) {
+      console.warn('[news-sitemap.xml] Firebase not initialized - returning empty sitemap');
+      return new Response(
+        `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
+</urlset>`,
+        {
+          status: 200,
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+          },
+        }
+      );
+    }
+
     // Fetch all published articles from Firestore
     const articlesSnapshot = await adminFirestore
       .collection("ai_news")

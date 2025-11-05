@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import Script from "next/script";
 import ContactClient from "./ContactClient";
 
 export const metadata: Metadata = {
@@ -37,5 +38,64 @@ export const metadata: Metadata = {
 };
 
 export default function ContactPage() {
-  return <ContactClient />;
+  const contactPageSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "ContactPage",
+        "@id": "https://politie-forum.nl/contact#webpage",
+        "url": "https://politie-forum.nl/contact",
+        "name": "Contact | Politie Forum Nederland",
+        "description": "Neem contact op met Politie Forum Nederland. Algemene vragen, technische support, partnerships, redactie, moderatie, of anonieme tips indienen.",
+        "isPartOf": { "@id": "https://politie-forum.nl/#website" },
+        "about": { "@id": "https://politie-forum.nl/#organization" },
+        "mainEntity": {
+          "@type": "Organization",
+          "@id": "https://politie-forum.nl/#organization",
+          "name": "Politie Forum Nederland",
+          "url": "https://politie-forum.nl",
+          "contactPoint": [
+            {
+              "@type": "ContactPoint",
+              "contactType": "general",
+              "email": "info@politie-forum.nl",
+              "telephone": "+31-6-48319167",
+              "availableLanguage": "nl"
+            },
+            {
+              "@type": "ContactPoint",
+              "contactType": "redactie",
+              "email": "redactie@politie-forum.nl",
+              "availableLanguage": "nl"
+            },
+            {
+              "@type": "ContactPoint",
+              "contactType": "moderatie",
+              "email": "moderatie@politie-forum.nl",
+              "availableLanguage": "nl"
+            },
+            {
+              "@type": "ContactPoint",
+              "contactType": "tips",
+              "email": "tips@politie-forum.nl",
+              "url": "https://politie-forum.nl/tips",
+              "availableLanguage": "nl"
+            }
+          ]
+        },
+        "dateModified": new Date().toISOString().split('T')[0]
+      }
+    ]
+  };
+
+  return (
+    <>
+      <Script
+        id="contact-page-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(contactPageSchema) }}
+      />
+      <ContactClient />
+    </>
+  );
 }

@@ -7,8 +7,14 @@ import { unstable_cache } from "next/cache";
  * For Vercel: Uses FIREBASE_SERVICE_ACCOUNT_KEY env var (base64 encoded JSON)
  * For local: Uses GOOGLE_APPLICATION_CREDENTIALS (file path to secretkey.json)
  * Automatically connects to local emulators if running in dev mode.
+ * 
+ * ⚠️ Build-safe: Skips initialization during Next.js build phase if credentials are missing
  */
-if (!admin.apps.length) {
+
+// Check if we're in build phase (no runtime needed)
+const isBuildPhase = process.env.NEXT_PHASE === 'phase-production-build';
+
+if (!admin.apps.length && !isBuildPhase) {
   try {
     let credential;
 
@@ -64,14 +70,17 @@ if (!admin.apps.length) {
       credential = admin.credential.applicationDefault();
       console.log("✅ Firebase Admin initialized using GOOGLE_APPLICATION_CREDENTIALS (local)");
     }
-    // No credentials found
+    // No credentials found - warn but don't crash during build
     else {
-      throw new Error(
-        '❌ No Firebase credentials found. Please set:\n' +
+      console.warn(
+        '⚠️ No Firebase credentials found. Please set:\n' +
         '  - FIREBASE_ADMIN_PROJECT_ID, FIREBASE_ADMIN_PRIVATE_KEY, FIREBASE_ADMIN_CLIENT_EMAIL (Vercel)\n' +
         '  - OR FIREBASE_SERVICE_ACCOUNT_KEY (base64-encoded JSON)\n' +
-        '  - OR GOOGLE_APPLICATION_CREDENTIALS (file path for local dev)'
+        '  - OR GOOGLE_APPLICATION_CREDENTIALS (file path for local dev)\n' +
+        '  Functions requiring Firebase will return empty data during build.'
       );
+      // Skip initialization - functions will return empty data
+      throw new Error('Firebase credentials not configured');
     }
 
     admin.initializeApp({
@@ -105,10 +114,38 @@ if (!admin.apps.length) {
   }
 }
 
-export const adminDb = admin.database();
-export const adminFirestore = admin.firestore();
-export const adminAuth = admin.auth();
+// Helper function to check if Firebase is initialized
+function isFirebaseInitialized(): boolean {
+  return admin.apps.length > 0;
+}
+
+// Safe getters that handle uninitialized Firebase
+export const adminDb = (() => {
+  try {
+    return isFirebaseInitialized() ? admin.database() : null;
+  } catch {
+    return null;
+  }
+})();
+
+export const adminFirestore = (() => {
+  try {
+    return isFirebaseInitialized() ? admin.firestore() : null;
+  } catch {
+    return null;
+  }
+})();
+
+export const adminAuth = (() => {
+  try {
+    return isFirebaseInitialized() ? admin.auth() : null;
+  } catch {
+    return null;
+  }
+})();
+
 export default admin;
+export { isFirebaseInitialized };
 
 // ────────────────────────────────────────────────
 // TYPES
@@ -212,18 +249,25 @@ function mapAdminToArticle(slug: string, a: AdminFirebaseArticle): Article {
 // FIRESTORE ARTICLE QUERIES (OPTIMIZED FOR SPEED)
 // ────────────────────────────────────────────────
 
-// In-memory cache DISABLED - always fetch fresh data from Firestore
-// This ensures deleted articles don't show on homepage
+// Next.js cache ENABLED - reduces Firestore quota usage
+// Cache for 5 minutes (300s) to stay within free tier limits
 export async function getLatestArticles(limit = 3): Promise<Article[]> {
-  try {
-    console.log(`[getLatestArticles] Fetching from /ai_news (AI-enhanced)`);
+  return unstable_cache(
+    async () => {
+      try {
+        if (!adminFirestore || !isFirebaseInitialized()) {
+          console.warn('[getLatestArticles] Firebase not initialized - returning empty array');
+          return [];
+        }
 
-    // Fetch from AI-enhanced collection only
-    const snapshot = await adminFirestore
-      .collection("ai_news")
-      .orderBy("publishedAt", "desc")
-      .limit(limit)
-      .get();
+        console.log(`[getLatestArticles] Fetching from /ai_news (AI-enhanced)`);
+
+        // Fetch from AI-enhanced collection only
+        const snapshot = await adminFirestore
+          .collection("ai_news")
+          .orderBy("publishedAt", "desc")
+          .limit(limit)
+          .get();
 
     console.log(`[getLatestArticles] Query successful. Snapshot.size=${snapshot.size}`);
 
@@ -255,17 +299,22 @@ export async function getLatestArticles(limit = 3): Promise<Article[]> {
       return true; // Keep high-quality or non-AI articles
     });
 
-    console.log(`[getLatestArticles] Returning ${qualityFiltered.length} AI-enhanced articles (${articles.length - qualityFiltered.length} filtered by quality gate)`);
+        console.log(`[getLatestArticles] Returning ${qualityFiltered.length} AI-enhanced articles (${articles.length - qualityFiltered.length} filtered by quality gate)`);
 
-    return qualityFiltered.slice(0, limit);
-  } catch (e: any) {
-    console.error("[getLatestArticles] ERROR:", e);
-    return [];
-  }
+        return qualityFiltered.slice(0, limit);
+      } catch (e: any) {
+        console.error("[getLatestArticles] ERROR:", e);
+        return [];
+      }
+    },
+    [`latest-articles-${limit}`],
+    { revalidate: 300, tags: ['articles', 'latest'] } // 5 minutes cache
+  )();
 }
 
 export async function getAllArticleSlugs(): Promise<string[]> {
   try {
+    if (!adminFirestore || !isFirebaseInitialized()) return [];
     // Fetch AI-enhanced articles only
     const snapshot = await adminFirestore.collection("ai_news").get();
     return snapshot.empty ? [] : snapshot.docs.map((doc) => doc.id);
@@ -279,6 +328,7 @@ export async function getServerArticle(slug: string): Promise<Article | null> {
   return unstable_cache(
     async () => {
       try {
+        if (!adminFirestore || !isFirebaseInitialized()) return null;
         // Try AI-enhanced version first
         let doc = await adminFirestore.collection("ai_news").doc(slug).get();
 
@@ -304,46 +354,53 @@ export async function getServerArticle(slug: string): Promise<Article | null> {
 }
 
 export async function getServerArticles(): Promise<Article[]> {
-  try {
-    // Fetch AI-enhanced collection only
-    const snapshot = await adminFirestore.collection("ai_news").get();
+  return unstable_cache(
+    async () => {
+      try {
+        if (!adminFirestore || !isFirebaseInitialized()) return [];
+        // Fetch AI-enhanced collection only
+        const snapshot = await adminFirestore.collection("ai_news").get();
 
-    if (snapshot.empty) return [];
+        if (snapshot.empty) return [];
 
-    const items = snapshot.docs.map((doc) =>
-      mapAdminToArticle(doc.id, doc.data() as AdminFirebaseArticle)
-    );
+        const items = snapshot.docs.map((doc) =>
+          mapAdminToArticle(doc.id, doc.data() as AdminFirebaseArticle)
+        );
 
-    // 🛡️ QUALITY GATE: Filter low-credibility articles
-    const qualityFiltered = items.filter((article: any) => {
-      if (article.aiQuality?.credibilityScore !== undefined) {
-        if (article.aiQuality.credibilityScore < 60) {
-          console.warn(`[QUALITY GATE] Filtering "${article.title}" (credibility: ${article.aiQuality.credibilityScore})`);
-          return false;
-        }
+        // 🛡️ QUALITY GATE: Filter low-credibility articles
+        const qualityFiltered = items.filter((article: any) => {
+          if (article.aiQuality?.credibilityScore !== undefined) {
+            if (article.aiQuality.credibilityScore < 60) {
+              console.warn(`[QUALITY GATE] Filtering "${article.title}" (credibility: ${article.aiQuality.credibilityScore})`);
+              return false;
+            }
+          }
+          return true;
+        });
+
+        return qualityFiltered.sort((a, b) => {
+          const aa =
+            typeof a.publishedAt === "number"
+              ? a.publishedAt
+              : a.publishedAt
+              ? Date.parse(a.publishedAt)
+              : 0;
+          const bb =
+            typeof b.publishedAt === "number"
+              ? b.publishedAt
+              : b.publishedAt
+              ? Date.parse(b.publishedAt)
+              : 0;
+          return (bb as number) - (aa as number);
+        });
+      } catch (e) {
+        console.error("Error getServerArticles:", e);
+        return [];
       }
-      return true;
-    });
-
-    return qualityFiltered.sort((a, b) => {
-      const aa =
-        typeof a.publishedAt === "number"
-          ? a.publishedAt
-          : a.publishedAt
-          ? Date.parse(a.publishedAt)
-          : 0;
-      const bb =
-        typeof b.publishedAt === "number"
-          ? b.publishedAt
-          : b.publishedAt
-          ? Date.parse(b.publishedAt)
-          : 0;
-      return (bb as number) - (aa as number);
-    });
-  } catch (e) {
-    console.error("Error getServerArticles:", e);
-    return [];
-  }
+    },
+    ['all-articles'],
+    { revalidate: 1800, tags: ['articles', 'all'] } // 30 minutes cache
+  )();
 }
 
 export async function getRelatedArticles(
@@ -352,45 +409,52 @@ export async function getRelatedArticles(
   tags?: string[],
   limit = 5
 ): Promise<Article[]> {
-  try {
-    // Use AI-enhanced collection for better semantic matching
-    const snapshot = await adminFirestore
-      .collection("ai_news")
-      .orderBy("publishedAt", "desc")
-      .limit(20)
-      .get();
+  return unstable_cache(
+    async () => {
+      try {
+        if (!adminFirestore || !isFirebaseInitialized()) return [];
+        // Use AI-enhanced collection for better semantic matching
+        const snapshot = await adminFirestore
+          .collection("ai_news")
+          .orderBy("publishedAt", "desc")
+          .limit(20)
+          .get();
 
-    if (snapshot.empty) return [];
+        if (snapshot.empty) return [];
 
-    const articles = snapshot.docs
-      .map((doc) => mapAdminToArticle(doc.id, doc.data() as AdminFirebaseArticle))
-      .filter((a) => a.slug !== currentSlug);
+        const articles = snapshot.docs
+          .map((doc) => mapAdminToArticle(doc.id, doc.data() as AdminFirebaseArticle))
+          .filter((a) => a.slug !== currentSlug);
 
-    const scored = articles.map((a) => {
-      let score = 0;
-      if (category && a.category === category) score += 3;
-      if (tags && a.tags)
-        score += tags.filter((t) => a.tags?.includes(t)).length;
-      const daysOld = a.publishedAt
-        ? (Date.now() -
-            (typeof a.publishedAt === "number"
-              ? a.publishedAt
-              : Date.parse(a.publishedAt))) /
-          (1000 * 60 * 60 * 24)
-        : 999;
-      if (daysOld < 7) score += 2;
-      else if (daysOld < 30) score += 1;
-      return { a, score };
-    });
+        const scored = articles.map((a) => {
+          let score = 0;
+          if (category && a.category === category) score += 3;
+          if (tags && a.tags)
+            score += tags.filter((t) => a.tags?.includes(t)).length;
+          const daysOld = a.publishedAt
+            ? (Date.now() -
+                (typeof a.publishedAt === "number"
+                  ? a.publishedAt
+                  : Date.parse(a.publishedAt))) /
+              (1000 * 60 * 60 * 24)
+            : 999;
+          if (daysOld < 7) score += 2;
+          else if (daysOld < 30) score += 1;
+          return { a, score };
+        });
 
-    return scored
-      .sort((x, y) => y.score - x.score)
-      .slice(0, limit)
-      .map((s) => s.a);
-  } catch (e) {
-    console.error("Error getRelatedArticles:", e);
-    return [];
-  }
+        return scored
+          .sort((x, y) => y.score - x.score)
+          .slice(0, limit)
+          .map((s) => s.a);
+      } catch (e) {
+        console.error("Error getRelatedArticles:", e);
+        return [];
+      }
+    },
+    [`related-${currentSlug}-${category}-${limit}`],
+    { revalidate: 3600, tags: ['articles', 'related', currentSlug] } // 1 hour cache
+  )();
 }
 
 // ────────────────────────────────────────────────
@@ -400,6 +464,7 @@ import type { Category, Comment } from "./types";
 
 export async function getServerCategories(): Promise<Category[]> {
   try {
+    if (!adminDb || !isFirebaseInitialized()) return [];
     const snap = await adminDb.ref("categories").once("value");
     if (!snap.exists()) return [];
     const val = snap.val() as Record<string, Omit<Category, "id">>;
@@ -416,6 +481,7 @@ export async function getServerArticleComments(
   return unstable_cache(
     async () => {
       try {
+        if (!adminDb || !isFirebaseInitialized()) return [];
         const snap = await adminDb
           .ref("comments")
           .orderByChild("articleSlug")
@@ -456,6 +522,7 @@ export async function getFirstCommentsForArticles(
   const result: Record<string, Comment | undefined> = {};
   if (!slugs.length) return result;
   try {
+    if (!adminDb || !isFirebaseInitialized()) return result;
     const snap = await adminDb.ref("comments").once("value");
     if (!snap.exists()) return result;
     const val = snap.val() as Record<string, Omit<Comment, "id">>;
@@ -475,38 +542,45 @@ export async function getFirstCommentsForArticles(
 }
 
 export async function getMostCommentedArticles(limit = 3): Promise<Article[]> {
-  try {
-    const commentsSnap = await adminDb.ref("comments").once("value");
-    if (!commentsSnap.exists()) return getLatestArticles(limit);
+  return unstable_cache(
+    async () => {
+      try {
+        if (!adminDb || !isFirebaseInitialized()) return [];
+        const commentsSnap = await adminDb.ref("comments").once("value");
+        if (!commentsSnap.exists()) return getLatestArticles(limit);
 
-    const commentsVal = commentsSnap.val() as Record<string, any>;
+        const commentsVal = commentsSnap.val() as Record<string, any>;
 
-    const commentCounts: Record<string, number> = {};
-    Object.values(commentsVal).forEach((comment) => {
-      const slug = comment.articleSlug;
-      if (slug) {
-        commentCounts[slug] = (commentCounts[slug] || 0) + 1;
+        const commentCounts: Record<string, number> = {};
+        Object.values(commentsVal).forEach((comment) => {
+          const slug = comment.articleSlug;
+          if (slug) {
+            commentCounts[slug] = (commentCounts[slug] || 0) + 1;
+          }
+        });
+
+        const sortedSlugs = Object.entries(commentCounts)
+          .sort(([, a], [, b]) => b - a)
+          .slice(0, limit)
+          .map(([slug]) => slug);
+
+        if (sortedSlugs.length === 0) return getLatestArticles(limit);
+
+        const articles: Article[] = [];
+        for (const slug of sortedSlugs) {
+          const article = await getServerArticle(slug);
+          if (article) articles.push(article);
+        }
+
+        return articles;
+      } catch (e) {
+        console.error("Error getMostCommentedArticles:", e);
+        return getLatestArticles(limit);
       }
-    });
-
-    const sortedSlugs = Object.entries(commentCounts)
-      .sort(([, a], [, b]) => b - a)
-      .slice(0, limit)
-      .map(([slug]) => slug);
-
-    if (sortedSlugs.length === 0) return getLatestArticles(limit);
-
-    const articles: Article[] = [];
-    for (const slug of sortedSlugs) {
-      const article = await getServerArticle(slug);
-      if (article) articles.push(article);
-    }
-
-    return articles;
-  } catch (e) {
-    console.error("Error getMostCommentedArticles:", e);
-    return getLatestArticles(limit);
-  }
+    },
+    [`most-commented-${limit}`],
+    { revalidate: 1800, tags: ['articles', 'comments', 'trending'] } // 30 minutes cache
+  )();
 }
 
 /**
@@ -514,6 +588,7 @@ export async function getMostCommentedArticles(limit = 3): Promise<Article[]> {
  */
 export async function getServerTopic(topicId: string): Promise<any | null> {
   try {
+    if (!adminDb || !isFirebaseInitialized()) return null;
     const snapshot = await adminDb.ref(`topics/${topicId}`).once('value');
     if (!snapshot.exists()) {
       return null;
@@ -533,6 +608,7 @@ export async function getServerTopic(topicId: string): Promise<any | null> {
  */
 export async function getServerTopicPosts(topicId: string): Promise<any[]> {
   try {
+    if (!adminDb || !isFirebaseInitialized()) return [];
     const snapshot = await adminDb.ref('posts').orderByChild('topicId').equalTo(topicId).once('value');
     if (!snapshot.exists()) {
       return [];

@@ -2,9 +2,15 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // News collection - public read, admin write
+    // News collection - public read, admin write (legacy)
     match /news/{article} {
       allow read;  // Public articles
+      allow write: if false;  // Only server (Admin SDK) can write
+    }
+
+    // AI-enhanced news collection - public read, admin write (PRIMARY)
+    match /ai_news/{article} {
+      allow read;  // Public articles with AI enhancements
       allow write: if false;  // Only server (Admin SDK) can write
     }
 
