@@ -400,15 +400,19 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
                   <span className="flex items-center gap-3">
-                    <img
-                      src="/politie-future.png"
-                      alt="Toekomst politie technologie - AI-gedreven politie nieuws en digitale veiligheid"
-                      title="DigestPaper Publisher Network - Toekomst Politie"
-                      className="w-12 h-12 rounded-full object-cover hidden sm:block"
-                      loading="lazy"
-                      width={48}
-                      height={48}
-                    />
+                    <picture>
+                      <source srcSet="/politie-future-64.webp" type="image/webp" />
+                      <img
+                        src="/politie-future-64.png"
+                        alt="Toekomst politie technologie - AI-gedreven politie nieuws en digitale veiligheid"
+                        title="DigestPaper Publisher Network - Toekomst Politie"
+                        className="w-12 h-12 rounded-full object-cover hidden sm:block"
+                        loading="lazy"
+                        width={64}
+                        height={64}
+                        decoding="async"
+                      />
+                    </picture>
                     <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
                       DigestPaper Publisher Network
                     </span>
@@ -675,15 +679,19 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
                   <span className="flex items-center gap-3">
-                    <img
-                      src="/politie-man-1.png"
-                      alt="Nederlandse politieagent - Professionele politie forum begeleiding voor sollicitatie en assessment"
-                      title="Politie Forum Begeleiding - Sollicitatie & Assessment"
-                      className="w-12 h-12 rounded-full object-cover border-2 border-blue-600 hidden sm:block"
-                      loading="lazy"
-                      width={48}
-                      height={48}
-                    />
+                    <picture>
+                      <source srcSet="/politie-man-1-64.webp" type="image/webp" />
+                      <img
+                        src="/politie-man-1-64.png"
+                        alt="Nederlandse politieagent - Professionele politie forum begeleiding voor sollicitatie en assessment"
+                        title="Politie Forum Begeleiding - Sollicitatie &amp; Assessment"
+                        className="w-12 h-12 rounded-full object-cover border-2 border-blue-600 hidden sm:block"
+                        loading="lazy"
+                        width={64}
+                        height={64}
+                        decoding="async"
+                      />
+                    </picture>
                     <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
                       Populaire Hulpbronnen
                     </span>

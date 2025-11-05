@@ -20,7 +20,9 @@ interface HomepageFAQProps {
 
 export default function HomepageFAQ({ mode = 'short' }: HomepageFAQProps) {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
-  const [sectionExpanded, setSectionExpanded] = useState(false);
+  // FAQ section is open by default on homepage (required for Google FAQPage rich results)
+  // Can be toggled by user
+  const [sectionExpanded, setSectionExpanded] = useState(true);
 
   const toggleFAQ = (index: number) => {
     setExpandedIndex(expandedIndex === index ? null : index);

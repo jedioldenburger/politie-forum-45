@@ -6,6 +6,15 @@ const CACHE_VERSION = '2.0.0';
 const CACHE_NAME = `politie-forum-v${CACHE_VERSION}`;
 const OFFLINE_URL = '/offline';
 const CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000; // 7 days
+const DEBUG = false; // Set to true to enable verbose logging in development
+
+// Runtime cache configuration
+const RUNTIME_CACHE = {
+  images: `${CACHE_NAME}-images`,
+  static: `${CACHE_NAME}-static`,
+  pages: `${CACHE_NAME}-pages`,
+  firebase: `${CACHE_NAME}-firebase`,
+};
 
 // Critical assets to cache on install (minimal for fast activation)
 const STATIC_CACHE = [
@@ -17,63 +26,129 @@ const STATIC_CACHE = [
   '/police_badge_icon_512x512.png',
 ];
 
-// Runtime cache configuration
-const RUNTIME_CACHE = {
-  images: `${CACHE_NAME}-images`,
-  static: `${CACHE_NAME}-static`,
-  pages: `${CACHE_NAME}-pages`,
-  firebase: `${CACHE_NAME}-firebase`,
-};
+// ============================================================================
+// LOGGING HELPERS
+// ============================================================================
+
+/**
+ * Conditional logging - only logs when DEBUG is true
+ */
+function log(...args) {
+  if (DEBUG) console.log('[SW]', ...args);
+}
+
+/**
+ * Always log warnings - useful for troubleshooting without verbose mode
+ */
+function warn(...args) {
+  console.warn('[SW]', ...args);
+}
+
+/**
+ * Always log errors
+ */
+function error(...args) {
+  console.error('[SW]', ...args);
+}
+
+/**
+ * Filter and log meaningful fetch events (skip noisy/irrelevant ones)
+ */
+function logFetch(event, category = 'FETCH') {
+  if (!DEBUG) return; // Skip if not in debug mode
+
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Skip noisy or irrelevant fetches
+  const skip =
+    request.mode === 'no-cors' || // opaque requests
+    request.url.includes('chrome-extension://') || // browser extensions
+    request.url.includes('devtools://') || // devtools
+    request.destination === '' || // prefetch or unknown
+    url.pathname.startsWith('/_next/static/') || // Next.js static files
+    url.pathname.match(/\.(png|jpg|jpeg|webp|svg|gif|ico|css|js|woff2?)$/); // static assets
+
+  if (skip) return;
+
+  console.groupCollapsed(`[SW ${category}] ${request.method} ${url.pathname}`);
+  console.log('Mode:', request.mode);
+  console.log('Destination:', request.destination);
+  console.log('Headers:', {
+    accept: request.headers.get('accept'),
+    referer: request.headers.get('referer'),
+  });
+  console.groupEnd();
+}
+
+// ============================================================================
+// SERVICE WORKER LIFECYCLE
+// ============================================================================
 
 // Install event - cache critical assets immediately
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing Service Worker v' + CACHE_VERSION);
+  log('Installing Service Worker v' + CACHE_VERSION);
+  log('CACHE_NAME:', CACHE_NAME);
+  log('STATIC_CACHE:', STATIC_CACHE);
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('[SW] Caching critical assets');
+        log('Cache opened successfully');
+        log('Caching static assets:', STATIC_CACHE);
         return cache.addAll(STATIC_CACHE);
       })
       .then(() => {
-        console.log('[SW] Skip waiting - activate immediately');
+        log('All static assets cached successfully');
+        log('Skipping waiting');
         return self.skipWaiting();
       })
-      .catch((error) => {
-        console.error('[SW] Install failed:', error);
+      .catch((err) => {
+        error('Install failed:', err);
       })
   );
 });
 
 // Activate event - cleanup old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating Service Worker v' + CACHE_VERSION);
+  log('Activating Service Worker v' + CACHE_VERSION);
   event.waitUntil(
     caches.keys()
       .then((cacheNames) => {
+        log('Found caches:', cacheNames);
         return Promise.all(
           cacheNames
             .filter((name) => {
               // Remove old version caches
-              return name.startsWith('politie-forum-') && name !== CACHE_NAME &&
-                     !Object.values(RUNTIME_CACHE).includes(name);
+              const isOldVersion = name.startsWith('politie-forum-') && name !== CACHE_NAME &&
+                                 !Object.values(RUNTIME_CACHE).includes(name);
+              if (isOldVersion) {
+                log('Marked for deletion:', name);
+              }
+              return isOldVersion;
             })
             .map((name) => {
-              console.log('[SW] Deleting old cache:', name);
+              log('Deleting old cache:', name);
               return caches.delete(name);
             })
         );
       })
       .then(() => {
-        console.log('[SW] Claiming all clients');
+        log('Claiming all clients');
         return self.clients.claim();
+      })
+      .then(() => {
+        log('Service Worker activation complete');
       })
   );
 });
 
-// Fetch event - intelligent caching strategies
+// Fetch event - intelligent caching strategies with error recovery
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
+
+  logFetch(event, 'FETCH');
 
   // Skip non-GET requests
   if (request.method !== 'GET') {
@@ -111,13 +186,33 @@ self.addEventListener('fetch', (event) => {
 
   // Strategy 1: Network-first for HTML pages (always fresh content)
   if (request.mode === 'navigate' || request.headers.get('accept')?.includes('text/html')) {
-    event.respondWith(handleNavigationRequest(request));
+    log('Using NAVIGATION handler for:', request.url);
+    event.respondWith(
+      handleNavigationRequest(request).catch(err => {
+        error('Navigation handler error:', err);
+        return new Response('Navigation Error: ' + err.message, {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
+      })
+    );
     return;
   }
 
   // Strategy 2: Cache-first for images (performance optimization)
   if (request.destination === 'image' || url.pathname.match(/\.(png|jpg|jpeg|webp|avif|svg|gif|ico)$/)) {
-    event.respondWith(handleImageRequest(request));
+    log('Using IMAGE handler for:', request.url);
+    event.respondWith(
+      handleImageRequest(request).catch(err => {
+        error('Image handler error:', err);
+        // Return placeholder SVG on error
+        return new Response(
+          '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="#ccc"/></svg>',
+          { status: 200, headers: { 'Content-Type': 'image/svg+xml' } }
+        );
+      })
+    );
     return;
   }
 
@@ -129,97 +224,190 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/_next/static/') ||
     url.pathname.match(/\.(css|js|woff2|woff|ttf|otf)$/)
   ) {
-    event.respondWith(handleStaticAssetRequest(request));
+    log('Using STATIC ASSET handler for:', request.url);
+    event.respondWith(
+      handleStaticAssetRequest(request).catch(err => {
+        error('Static asset handler error:', err);
+        throw err; // Let network error propagate for CSS/JS
+      })
+    );
     return;
   }
 
   // Strategy 4: Network-first with cache fallback for Firebase
   if (url.hostname.includes('firebasedatabase.app') || url.hostname.includes('firebaseapp.com')) {
-    event.respondWith(handleFirebaseRequest(request));
+    log('Using FIREBASE handler for:', request.url);
+    event.respondWith(
+      handleFirebaseRequest(request).catch(err => {
+        error('Firebase handler error:', err);
+        throw err;
+      })
+    );
     return;
   }
 
   // Default: Network-first with cache fallback
-  event.respondWith(handleDefaultRequest(request));
+  log('Using DEFAULT handler for:', request.url);
+  event.respondWith(
+    handleDefaultRequest(request).catch(err => {
+      error('Default handler error:', err);
+      throw err;
+    })
+  );
 });
 
-// Navigation requests (HTML pages) - Network-first
+// Navigation requests (HTML pages) - Network-first with improved error handling
 async function handleNavigationRequest(request) {
-  const cache = await caches.open(RUNTIME_CACHE.pages);
+  log('handleNavigationRequest START for:', request.url);
   
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      // Cache successful page responses
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    // Try cache first, then offline page
-    const cached = await cache.match(request);
-    if (cached) {
-      return cached;
-    }
+    const cache = await caches.open(RUNTIME_CACHE.pages);
+    log('Cache opened:', RUNTIME_CACHE.pages);
     
-    const offlinePage = await caches.match(OFFLINE_URL);
-    if (offlinePage) {
-      return offlinePage;
+    try {
+      // Try network first for fresh content
+      log('Attempting network fetch for:', request.url);
+      
+      const response = await Promise.race([
+        fetch(request),
+        new Promise((_, reject) => {
+          setTimeout(() => {
+            warn('Network timeout (10s) for:', request.url);
+            reject(new Error('Network timeout after 10s'));
+          }, 10000);
+        })
+      ]);
+      
+      log('Network response received:', {
+        url: request.url,
+        status: response?.status,
+        ok: response?.ok,
+        statusText: response?.statusText
+      });
+      
+      // Only cache successful responses
+      if (response && response.ok && response.status === 200) {
+        log('Response OK (200), caching:', request.url);
+        // Clone before caching to avoid "Response body already read" errors
+        cache.put(request, response.clone()).catch(err => {
+          warn('Failed to cache navigation response:', err);
+        });
+      } else {
+        warn('Response not OK:', {
+          status: response?.status,
+          ok: response?.ok,
+          url: request.url
+        });
+      }
+      
+      log('Returning network response for:', request.url);
+      return response;
+    } catch (networkError) {
+      warn('Network request failed for', request.url, 'Error:', networkError.message);
+      
+      // Fall back to cache
+      log('Attempting cache match for:', request.url);
+      const cached = await cache.match(request);
+      if (cached) {
+        log('Serving cached page:', request.url);
+        return cached;
+      }
+      
+      log('No cached page found, trying offline page');
+      // Try to serve offline page as last resort
+      try {
+        const offlinePage = await caches.match(OFFLINE_URL);
+        if (offlinePage) {
+          log('Serving offline page from', OFFLINE_URL);
+          return offlinePage;
+        }
+        error('Offline page not found in cache');
+      } catch (offlineErr) {
+        error('Failed to retrieve offline page:', offlineErr);
+      }
+      
+      // Ultimate fallback - return a valid HTTP response, never throw
+      warn('Using ultimate fallback - returning 503 response');
+      return new Response('Service Unavailable - Offline and no cached version available', {
+        status: 503,
+        statusText: 'Service Unavailable',
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8',
+          'Cache-Control': 'no-store'
+        }
+      });
     }
+  } catch (err) {
+    error('Critical error in handleNavigationRequest:', err);
     
-    // Ultimate fallback
-    return new Response('Offline - No cached version available', {
-      status: 503,
-      statusText: 'Service Unavailable',
-      headers: { 'Content-Type': 'text/plain' }
+    // Always return a response, never throw from fetch handler
+    warn('Critical error fallback - returning 500 response');
+    return new Response('Service Worker Error: ' + err.message, {
+      status: 500,
+      statusText: 'Internal Server Error',
+      headers: { 
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-store'
+      }
     });
   }
 }
 
-// Image requests - Cache-first with network fallback
+// Image requests - Cache-first with network fallback (9+ minutes stale tolerance)
 async function handleImageRequest(request) {
-  const cache = await caches.open(RUNTIME_CACHE.images);
-  const cached = await cache.match(request);
-  
-  if (cached) {
-    // Check if cache is stale (older than 7 days)
-    const cacheDate = cached.headers.get('sw-cache-date');
-    if (cacheDate) {
-      const age = Date.now() - new Date(cacheDate).getTime();
-      if (age < CACHE_MAX_AGE) {
-        return cached;
-      }
-    } else {
-      return cached; // No date header, assume valid
-    }
-  }
+  log('Image request for:', request.url);
   
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      // Add cache date header
-      const clonedResponse = response.clone();
-      const headers = new Headers(clonedResponse.headers);
-      headers.set('sw-cache-date', new Date().toISOString());
-      
-      const newResponse = new Response(await clonedResponse.blob(), {
-        status: clonedResponse.status,
-        statusText: clonedResponse.statusText,
-        headers: headers
-      });
-      
-      cache.put(request, newResponse.clone());
-      return newResponse;
-    }
-    return response;
-  } catch (error) {
-    // Return cached if available
+    const cache = await caches.open(RUNTIME_CACHE.images);
+    const cached = await cache.match(request);
+    
     if (cached) {
+      log('Serving image from cache:', request.url);
       return cached;
     }
     
-    // Return placeholder SVG for failed image loads
+    log('Image not in cache, trying network:', request.url);
+    
+    try {
+      const response = await fetch(request);
+      if (response && response.ok) {
+        log('Image network successful, caching:', request.url);
+        // Clone to avoid "Response body already read" errors
+        const clonedResponse = response.clone();
+        cache.put(request, clonedResponse).catch(err =>
+          warn('Failed to cache image:', err)
+        );
+        return response;
+      }
+      warn('Image network response not OK:', response?.status, request.url);
+      return response;
+    } catch (networkError) {
+      warn('Image network error:', networkError.message, request.url);
+      // Return cached if available
+      if (cached) {
+        log('Returning stale image cache after network error');
+        return cached;
+      }
+      
+      // Return placeholder SVG for failed image loads (never throw)
+      log('Returning placeholder SVG for image');
+      return new Response(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#0a1931"/><text x="50%" y="50%" text-anchor="middle" fill="#004bbf" font-family="sans-serif" font-size="16">Image unavailable</text></svg>',
+        { 
+          status: 200,
+          headers: { 
+            'Content-Type': 'image/svg+xml',
+            'Cache-Control': 'no-cache'
+          }
+        }
+      );
+    }
+  } catch (err) {
+    error('Critical error in handleImageRequest:', err);
+    
+    // Return placeholder instead of throwing
     return new Response(
-      '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#0a1931"/><text x="50%" y="50%" text-anchor="middle" fill="#004bbf" font-family="sans-serif" font-size="16">Afbeelding niet beschikbaar</text></svg>',
+      '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#0a1931"/></svg>',
       { 
         status: 200,
         headers: { 
@@ -231,75 +419,105 @@ async function handleImageRequest(request) {
   }
 }
 
-// Static asset requests (CSS, JS, fonts) - Cache-first with long TTL
+// Static asset requests (CSS, JS, fonts) - Cache-first with stale-while-revalidate
 async function handleStaticAssetRequest(request) {
-  const cache = await caches.open(RUNTIME_CACHE.static);
-  const cached = await cache.match(request);
-  
-  if (cached) {
-    // Static assets are immutable (versioned by Next.js)
-    return cached;
-  }
-  
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    // Return cached if available
+    const cache = await caches.open(RUNTIME_CACHE.static);
+    const cached = await cache.match(request);
+    
     if (cached) {
+      // Static assets are immutable (versioned by Next.js), return immediately
+      log('Serving static asset from cache:', request.url);
       return cached;
     }
+    
+    try {
+      const response = await fetch(request);
+      if (response && response.ok) {
+        log('Static asset network successful, caching:', request.url);
+        cache.put(request, response.clone()).catch(err =>
+          warn('Failed to cache static asset:', err)
+        );
+      }
+      return response;
+    } catch (networkError) {
+      warn('Static asset network error:', networkError.message);
+      // Return cached even if old
+      if (cached) {
+        log('Returning cached static asset after network error');
+        return cached;
+      }
+      throw networkError;
+    }
+  } catch (error) {
+    error('Error in handleStaticAssetRequest:', error);
     throw error;
   }
 }
 
 // Firebase requests - Network-first with cache fallback (for offline support)
 async function handleFirebaseRequest(request) {
-  const cache = await caches.open(RUNTIME_CACHE.firebase);
-  
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      // Only cache successful GET requests
-      cache.put(request, response.clone());
+    const cache = await caches.open(RUNTIME_CACHE.firebase);
+    
+    try {
+      const response = await fetch(request);
+      if (response && response.ok) {
+        // Only cache successful GET requests
+        log('Firebase network successful, caching:', request.url);
+        cache.put(request, response.clone()).catch(err =>
+          warn('Failed to cache Firebase response:', err)
+        );
+      }
+      return response;
+    } catch (networkError) {
+      warn('Firebase network error, attempting cached data:', networkError.message);
+      // Use cached Firebase data when offline
+      const cached = await cache.match(request);
+      if (cached) {
+        log('Using cached Firebase data (offline mode)');
+        return cached;
+      }
+      throw networkError;
     }
-    return response;
   } catch (error) {
-    // Use cached Firebase data when offline
-    const cached = await cache.match(request);
-    if (cached) {
-      console.log('[SW] Using cached Firebase data (offline mode)');
-      return cached;
-    }
+    error('Error in handleFirebaseRequest:', error);
     throw error;
   }
 }
 
-// Default requests - Network-first with cache fallback
+// Default requests - Network-first with cache fallback and error safety
 async function handleDefaultRequest(request) {
-  const cache = await caches.open(CACHE_NAME);
-  
   try {
-    const response = await fetch(request);
-    if (response.ok) {
-      cache.put(request, response.clone());
+    const cache = await caches.open(CACHE_NAME);
+    
+    try {
+      const response = await fetch(request);
+      if (response && response.ok) {
+        log('Default request network successful, caching:', request.url);
+        cache.put(request, response.clone()).catch(err =>
+          warn('Failed to cache default request:', err)
+        );
+      }
+      return response;
+    } catch (networkError) {
+      warn('Network error for default request:', request.url);
+      const cached = await cache.match(request);
+      if (cached) {
+        log('Returning cached default request after network error');
+        return cached;
+      }
+      throw networkError;
     }
-    return response;
   } catch (error) {
-    const cached = await cache.match(request);
-    if (cached) {
-      return cached;
-    }
+    error('Error in handleDefaultRequest:', error);
     throw error;
   }
 }
 
 // Push notification support
 self.addEventListener('push', (event) => {
-  console.log('[SW] Push notification received');
+  log('Push notification received');
   
   let notificationData = {
     title: 'Politie Forum Nederland',
@@ -350,7 +568,7 @@ self.addEventListener('push', (event) => {
 
 // Notification click handler
 self.addEventListener('notificationclick', (event) => {
-  console.log('[SW] Notification clicked:', event.action);
+  log('Notification clicked:', event.action);
   event.notification.close();
 
   if (event.action === 'close') {
@@ -378,7 +596,7 @@ self.addEventListener('notificationclick', (event) => {
 
 // Background sync support (for offline comment posting)
 self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync triggered:', event.tag);
+  log('Background sync triggered:', event.tag);
   
   if (event.tag === 'sync-comments') {
     event.waitUntil(syncComments());
@@ -390,7 +608,7 @@ self.addEventListener('sync', (event) => {
 async function syncComments() {
   try {
     // TODO: Implement comment sync from IndexedDB to Firebase
-    console.log('[SW] Syncing offline comments to Firebase...');
+    log('Syncing offline comments to Firebase...');
     
     // Example implementation:
     // const db = await openIndexedDB();
@@ -404,25 +622,25 @@ async function syncComments() {
     
     return Promise.resolve();
   } catch (error) {
-    console.error('[SW] Comment sync failed:', error);
+    error('Comment sync failed:', error);
     throw error;
   }
 }
 
 async function syncLikes() {
   try {
-    console.log('[SW] Syncing offline likes to Firebase...');
+    log('Syncing offline likes to Firebase...');
     // TODO: Implement like sync
     return Promise.resolve();
   } catch (error) {
-    console.error('[SW] Like sync failed:', error);
+    error('Like sync failed:', error);
     throw error;
   }
 }
 
 // Message handler (for communication with main thread)
 self.addEventListener('message', (event) => {
-  console.log('[SW] Message received:', event.data);
+  log('Message received:', event.data);
   
   if (event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -443,11 +661,11 @@ self.addEventListener('message', (event) => {
 
 // Error handler
 self.addEventListener('error', (event) => {
-  console.error('[SW] Error:', event.error);
+  error('Service Worker error:', event.error);
 });
 
 self.addEventListener('unhandledrejection', (event) => {
-  console.error('[SW] Unhandled promise rejection:', event.reason);
+  error('Unhandled promise rejection:', event.reason);
 });
 
 console.log('[SW] Service Worker v' + CACHE_VERSION + ' loaded');

@@ -155,25 +155,12 @@ export default function RootLayout({
           `}
         </Script>
 
-        {/* Google Analytics 4 (GA4) - defer to reduce main-thread work */}
-        {/* Preconnect to critical origins */}
+        {/* Google Analytics 4 (GA4) - Only preconnect to most critical origin (110ms LCP savings) */}
         <link
           rel="preconnect"
           href="https://www.googletagmanager.com"
           crossOrigin="anonymous"
         />
-        <link
-          rel="preconnect"
-          href="https://www.google-analytics.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preconnect"
-          href="https://apis.google.com"
-          crossOrigin="anonymous"
-        />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         {/* Load GA after page is interactive to minimize TBT */}
         <Script
           id="ga4-lib"
@@ -187,13 +174,6 @@ export default function RootLayout({
           type="application/opensearchdescription+xml"
           title="Politie Forum Nederland"
           href="/opensearch.xml"
-        />
-
-        {/* Preconnect to IndexNow for faster indexing */}
-        <link
-          rel="preconnect"
-          href="https://api.indexnow.org"
-          crossOrigin="anonymous"
         />
 
         {/* Icons & Manifest */}

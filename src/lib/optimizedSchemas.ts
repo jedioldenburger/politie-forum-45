@@ -77,22 +77,6 @@ export function generateBaseSchema() {
         ]
       },
       {
-        "@type": "ContactPage",
-        "@id": "https://politie-forum.nl/contact",
-        "url": "https://politie-forum.nl/contact",
-        "name": "Contact",
-        "isPartOf": { "@id": "https://politie-forum.nl/#website" },
-        "about": { "@id": "https://politie-forum.nl/#organization" }
-      },
-      {
-        "@type": "AboutPage",
-        "@id": "https://politie-forum.nl/over",
-        "url": "https://politie-forum.nl/over",
-        "name": "Over Politie Forum Nederland",
-        "isPartOf": { "@id": "https://politie-forum.nl/#website" },
-        "about": { "@id": "https://politie-forum.nl/#organization" }
-      },
-      {
         "@type": "DiscussionForumPosting",
         "@id": "https://politie-forum.nl/#forum",
         "url": "https://politie-forum.nl/",
@@ -426,20 +410,50 @@ export function generateHomepageWebPageSchema() {
 }
 
 /**
- * Consolidate all homepage schemas into one unified graph
+ * Consolidate homepage schemas into one unified graph
  * Prevents duplication, optimized for Google Rich Results
+ * Homepage only includes: Organization, WebSite, BreadcrumbList, DiscussionForumPosting, WebPage, FAQPage
+ * Excludes: ContactPage, AboutPage, HowTo, VideoObject (these go on dedicated pages)
  */
 export function generateCompleteHomepageSchema() {
   const baseSchema = generateBaseSchema();
   const faqSchema = generateFAQSchema();
-  const howToVideoSchema = generateHowToVideoSchema();
   const webPageSchema = generateHomepageWebPageSchema();
 
-  // Merge all graphs into one (no duplicate @context)
+  // Merge only homepage-relevant schemas (no HowTo/Video)
   const consolidatedGraph = [
     ...baseSchema["@graph"],
     webPageSchema,
-    faqSchema,
+    faqSchema
+  ];
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": consolidatedGraph
+  };
+}
+
+/**
+ * Separate schema for dedicated pages like /hulp or /instructies
+ * Contains HowTo and VideoObject only for those specific pages
+ * DO NOT use on homepage - violates Google guidelines
+ */
+export function generateHelpPageSchema() {
+  const baseSchema = generateBaseSchema();
+  const howToVideoSchema = generateHowToVideoSchema();
+  const webPageSchema = {
+    "@type": "WebPage",
+    "@id": "https://politie-forum.nl/hulp#webpage",
+    "url": "https://politie-forum.nl/hulp",
+    "name": "Hoe plaats ik een bericht - Politie Forum",
+    "isPartOf": { "@id": "https://politie-forum.nl/#website" },
+    "about": { "@id": "https://politie-forum.nl/#organization" },
+    "breadcrumb": { "@id": "https://politie-forum.nl/#breadcrumb" }
+  };
+
+  const consolidatedGraph = [
+    ...baseSchema["@graph"],
+    webPageSchema,
     ...howToVideoSchema
   ];
 
