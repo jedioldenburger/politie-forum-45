@@ -78,10 +78,7 @@ export const metadata: Metadata = {
     "geo.placename": "Amsterdam",
     "geo.position": "52.3676;4.9041",
     "ICBM": "52.3676, 4.9041",
-    // Meta AI / Facebook integration for better social sharing
-    "fb:app_id": "123456789", // TODO: Replace with actual Facebook App ID
-    // OG freshness signal (explicit property for crawlers)
-    "og:updated_time": new Date().toISOString(),
+
     // IndexNow API key for instant Bing indexing
     "indexnow-verify": "politie-forum-nl-indexnow-2025",
   },
@@ -134,26 +131,13 @@ export default function RootLayout({
   return (
     <html lang="nl-NL">
       <head>
-        {/* Critical CSS for instant LCP render */}
-        <link rel="stylesheet" href="/styles/critical.css" />
-
-        {/* Hreflang for Dutch content (SEO Audit recommendation) */}
+        {/* Hreflang for Dutch content (SEO Audit: simplified single-locale) */}
         <link rel="alternate" hrefLang="nl" href="https://politie-forum.nl/" />
-        <link rel="alternate" hrefLang="nl-NL" href="https://politie-forum.nl/" />
         <link rel="alternate" hrefLang="x-default" href="https://politie-forum.nl/" />
 
         {/* RSS/Atom Feed Autodiscovery (canonical, no duplicates) */}
         <link rel="alternate" type="application/rss+xml" title="Politie Forum Nederland - RSS Feed" href="/feed.xml" />
         <link rel="alternate" type="application/atom+xml" title="Politie Forum Nederland - Atom Feed" href="/atom.xml" />
-
-        {/* Preload hero image for faster LCP (SEO Audit recommendation) */}
-        <link
-          rel="preload"
-          as="image"
-          href="/og/politie-forum-1200x630.png"
-          type="image/png"
-          fetchPriority="high"
-        />
 
         {/* Consent Mode v2 - Set defaults BEFORE loading GA */}
         <Script id="consent-mode" strategy="beforeInteractive">
@@ -183,6 +167,13 @@ export default function RootLayout({
           href="https://www.google-analytics.com"
           crossOrigin="anonymous"
         />
+        <link
+          rel="preconnect"
+          href="https://apis.google.com"
+          crossOrigin="anonymous"
+        />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
         {/* Load GA after page is interactive to minimize TBT */}
         <Script
           id="ga4-lib"
@@ -247,6 +238,43 @@ export default function RootLayout({
         <meta name="msapplication-TileColor" content="#001f5c" />
         <meta name="msapplication-config" content="/browserconfig.xml" />
 
+        {/* iOS Splash Screens - PWA Support (using modern media features) */}
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/iphone-se.png"
+          media="(viewport-width: 320px) and (viewport-height: 568px) and (-webkit-device-pixel-ratio: 2)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/iphone-8.png"
+          media="(viewport-width: 375px) and (viewport-height: 667px) and (-webkit-device-pixel-ratio: 2)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/iphone-11.png"
+          media="(viewport-width: 414px) and (viewport-height: 896px) and (-webkit-device-pixel-ratio: 2)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/iphone-14.png"
+          media="(viewport-width: 430px) and (viewport-height: 932px) and (-webkit-device-pixel-ratio: 3)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/ipad-9.7.png"
+          media="(viewport-width: 768px) and (viewport-height: 1024px) and (-webkit-device-pixel-ratio: 2)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/ipad-pro-11.png"
+          media="(viewport-width: 834px) and (viewport-height: 1194px) and (-webkit-device-pixel-ratio: 2)"
+        />
+        <link
+          rel="apple-touch-startup-image"
+          href="/splash/ipad-pro-12.9.png"
+          media="(viewport-width: 1024px) and (viewport-height: 1366px) and (-webkit-device-pixel-ratio: 2)"
+        />
+
         {/* Sitemap (already linked via robots.txt, single reference) */}
         <link
           rel="sitemap"
@@ -276,6 +304,13 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
+        {/* Skip link for accessibility (SEO Audit fix) */}
+        <a 
+          href="#hoofdinhoud" 
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded focus:shadow-lg"
+        >
+          Ga naar hoofdinhoud
+        </a>
         {/* Microdata removed - using JSON-LD only for cleaner, non-duplicate structured data */}
         <ServiceWorkerRegistration />
         <WebVitalsReporter />

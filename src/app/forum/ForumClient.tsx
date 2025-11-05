@@ -399,7 +399,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   aria-controls="digestpaper-network-content"
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
-                  <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-3">
                     <img
                       src="/politie-future.png"
                       alt="Toekomst politie technologie - AI-gedreven politie nieuws en digitale veiligheid"
@@ -412,7 +412,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                     <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
                       DigestPaper Publisher Network
                     </span>
-                  </div>
+                  </span>
                   {expandedCategories.includes("digestpaper-network") ? (
                     <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   ) : (
@@ -674,7 +674,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                   aria-controls="hulpbronnen-content"
                   className="w-full flex items-center justify-between p-4 bg-gradient-to-r from-slate-100 to-slate-50 dark:from-slate-700 dark:to-slate-800 hover:from-slate-200 hover:to-slate-100 dark:hover:from-slate-600 dark:hover:to-slate-700 transition-all"
                 >
-                  <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-3">
                     <img
                       src="/politie-man-1.png"
                       alt="Nederlandse politieagent - Professionele politie forum begeleiding voor sollicitatie en assessment"
@@ -687,7 +687,7 @@ export default function ForumClient({ featuredArticles, categories, faqComponent
                     <span className="text-xl font-bold text-blue-900 dark:text-blue-400">
                       Populaire Hulpbronnen
                     </span>
-                  </div>
+                  </span>
                   {expandedCategories.includes("hulpbronnen") ? (
                     <ChevronUp className="h-5 w-5 text-slate-600 dark:text-slate-400" aria-hidden="true" focusable="false" />
                   ) : (

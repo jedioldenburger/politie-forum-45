@@ -3,6 +3,7 @@
 import AuthModal from '@/components/AuthModal';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function CorrectiesClient() {
@@ -44,7 +45,7 @@ export function CorrectiesClient() {
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <li><a href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</a></li>
+              <li><Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</Link></li>
               <li><span className="mx-2">/</span></li>
               <li className="text-gray-900 dark:text-gray-100">Correcties</li>
             </ol>
@@ -131,7 +132,7 @@ export function CorrectiesClient() {
                   <strong>Oorzaak:</strong> Miscommunicatie met politiebron. We hebben onze verificatieprocedure aangescherpt.
                 </p>
                 <p className="mt-2 text-sm">
-                  <a href="/nieuws/politie-amsterdam-drugsoperatie-23-arrestaties" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</a>
+                  <Link href="/nieuws/politie-amsterdam-drugsoperatie-23-arrestaties" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</Link>
                 </p>
               </div>
 
@@ -145,7 +146,7 @@ export function CorrectiesClient() {
                   <strong>Oorzaak:</strong> Typfout tijdens bewerking. Extra verificatiestap toegevoegd voor numerieke data.
                 </p>
                 <p className="mt-2 text-sm">
-                  <a href="/nieuws/cbs-cybercrime-stijging-2024" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</a>
+                  <Link href="/nieuws/cbs-cybercrime-stijging-2024" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</Link>
                 </p>
               </div>
 
@@ -159,7 +160,7 @@ export function CorrectiesClient() {
                   <strong>Oorzaak:</strong> Verwarring tussen verschillende politiebonden. Redacteuren krijgen extra training in organisatie-identificatie.
                 </p>
                 <p className="mt-2 text-sm">
-                  <a href="/nieuws/politiebond-npb-loonsverhoging-8-procent" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</a>
+                  <Link href="/nieuws/politiebond-npb-loonsverhoging-8-procent" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</Link>
                 </p>
               </div>
 
@@ -173,7 +174,7 @@ export function CorrectiesClient() {
                   <strong>Oorzaak:</strong> Onvolledige lezing van rechtbankuitspraak. We hebben procedure aangepast om volledige documenten te reviewen.
                 </p>
                 <p className="mt-2 text-sm">
-                  <a href="/nieuws/rechtbank-rotterdam-wapeningeval-gedeeltelijke-vrijspraak" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</a>
+                  <Link href="/nieuws/rechtbank-rotterdam-wapeningeval-gedeeltelijke-vrijspraak" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</Link>
                 </p>
               </div>
 
@@ -187,7 +188,7 @@ export function CorrectiesClient() {
                   <strong>Oorzaak:</strong> Misinterpretatie van technische juridische taal. Expert review toegevoegd voor toekomstige juridische verhalen.
                 </p>
                 <p className="mt-2 text-sm">
-                  <a href="/nieuws/minister-yesilgoz-wet-encryptie-toegang-opsporingsdiensten" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</a>
+                  <Link href="/nieuws/minister-yesilgoz-wet-encryptie-toegang-opsporingsdiensten" className="text-yellow-700 dark:text-yellow-300 hover:underline">Lees het bijgewerkte artikel →</Link>
                 </p>
               </div>
 
@@ -362,10 +363,10 @@ export function CorrectiesClient() {
             <section>
               <h2>7. Gerelateerde Documenten</h2>
               <ul>
-                <li><a href="/redactionele-principes" className="text-primary-600 dark:text-primary-400 hover:underline">Redactionele Principes</a> - Onze journalistieke standaarden</li>
-                <li><a href="/feitencontrole" className="text-primary-600 dark:text-primary-400 hover:underline">Feitencontrole</a> - Onze fact-checking methodologie</li>
-                <li><a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacybeleid</a> - Hoe we met je gegevens omgaan</li>
-                <li><a href="/contact" className="text-primary-600 dark:text-primary-400 hover:underline">Contact</a> - Andere vragen? Neem contact op</li>
+                <li><Link href="/redactionele-principes" className="text-primary-600 dark:text-primary-400 hover:underline">Redactionele Principes</Link> - Onze journalistieke standaarden</li>
+                <li><Link href="/feitencontrole" className="text-primary-600 dark:text-primary-400 hover:underline">Feitencontrole</Link> - Onze fact-checking methodologie</li>
+                <li><Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacybeleid</Link> - Hoe we met je gegevens omgaan</li>
+                <li><Link href="/contact" className="text-primary-600 dark:text-primary-400 hover:underline">Contact</Link> - Andere vragen? Neem contact op</li>
               </ul>
             </section>
 

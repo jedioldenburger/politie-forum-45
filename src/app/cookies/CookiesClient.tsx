@@ -3,6 +3,7 @@
 import AuthModal from '@/components/AuthModal';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function CookiesClient() {
@@ -44,7 +45,7 @@ export function CookiesClient() {
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <li><a href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</a></li>
+              <li><Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</Link></li>
               <li><span className="mx-2">/</span></li>
               <li className="text-gray-900 dark:text-gray-100">Cookiebeleid</li>
             </ol>
@@ -326,7 +327,7 @@ export function CookiesClient() {
               </ul>
 
               <p>
-                Voor het uitoefenen van deze rechten, zie onze <a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</a> of neem contact met ons op via <a href="mailto:privacy@politie-forum.nl" className="text-primary-600 dark:text-primary-400 hover:underline">privacy@politie-forum.nl</a>.
+                Voor het uitoefenen van deze rechten, zie onze <Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</Link> of neem contact met ons op via <a href="mailto:privacy@politie-forum.nl" className="text-primary-600 dark:text-primary-400 hover:underline">privacy@politie-forum.nl</a>.
               </p>
             </section>
 
@@ -373,10 +374,10 @@ export function CookiesClient() {
 
               <h3>Gerelateerde Pagina's</h3>
               <ul>
-                <li><a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</a> - Ons volledige privacybeleid</li>
-                <li><a href="/disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Disclaimer</a> - Gebruiksvoorwaarden</li>
-                <li><a href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</a> - Servicevoorwaarden</li>
-                <li><a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> - Community guidelines</li>
+                <li><Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</Link> - Ons volledige privacybeleid</li>
+                <li><Link href="/disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Disclaimer</Link> - Gebruiksvoorwaarden</li>
+                <li><Link href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</Link> - Servicevoorwaarden</li>
+                <li><Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> - Community guidelines</li>
               </ul>
             </section>
 

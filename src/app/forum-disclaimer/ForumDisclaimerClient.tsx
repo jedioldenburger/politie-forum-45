@@ -3,6 +3,7 @@
 import AuthModal from '@/components/AuthModal';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function ForumDisclaimerClient() {
@@ -44,7 +45,7 @@ export function ForumDisclaimerClient() {
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <li><a href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</a></li>
+              <li><Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</Link></li>
               <li><span className="mx-2">/</span></li>
               <li className="text-gray-900 dark:text-gray-100">Forum Disclaimer</li>
             </ol>
@@ -172,7 +173,7 @@ export function ForumDisclaimerClient() {
               <div className="my-6 p-4 bg-gray-50 dark:bg-gray-800 border-l-4 border-gray-500 rounded-r">
                 <p className="font-semibold text-gray-900 dark:text-gray-100">📝 Moderatie Proces</p>
                 <p className="mt-2 text-gray-800 dark:text-gray-200">
-                  Moderatie vindt plaats door menselijke moderatoren en geautomatiseerde filters. Beslissingen zijn gebaseerd op onze <a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> en <a href="/moderatie-beleid" className="text-primary-600 dark:text-primary-400 hover:underline">Moderatiebeleid</a>. U heeft het recht om bezwaar te maken tegen moderatiebeslissingen via onze appealprocedure.
+                  Moderatie vindt plaats door menselijke moderatoren en geautomatiseerde filters. Beslissingen zijn gebaseerd op onze <Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> en <Link href="/moderatie-beleid" className="text-primary-600 dark:text-primary-400 hover:underline">Moderatiebeleid</Link>. U heeft het recht om bezwaar te maken tegen moderatiebeslissingen via onze appealprocedure.
                 </p>
               </div>
 
@@ -207,7 +208,7 @@ export function ForumDisclaimerClient() {
 
               <h3>Verplichtingen van Gebruikers</h3>
               <ul>
-                <li><strong>Naleving van regels:</strong> Lees en volg onze <a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a></li>
+                <li><strong>Naleving van regels:</strong> Lees en volg onze <Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link></li>
                 <li><strong>Respectvolle communicatie:</strong> Behandel andere leden met respect, zelfs bij meningsverschillen</li>
                 <li><strong>Accurate informatie:</strong> Deel alleen informatie waarvan u de juistheid redelijkerwijs kunt verifiëren</li>
                 <li><strong>Privacy bescherming:</strong> Deel geen persoonlijke gegevens van anderen zonder toestemming</li>
@@ -243,7 +244,7 @@ export function ForumDisclaimerClient() {
             <section>
               <h2>5. Privacy en Gegevensverwerking</h2>
               <p>
-                Het gebruik van het forum omvat de verwerking van persoonlijke gegevens. Voor details, zie ons volledige <a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacybeleid</a>.
+                Het gebruik van het forum omvat de verwerking van persoonlijke gegevens. Voor details, zie ons volledige <Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacybeleid</Link>.
               </p>
 
               <h3>Publieke Zichtbaarheid</h3>
@@ -276,7 +277,7 @@ export function ForumDisclaimerClient() {
 
               <h3>Cookies en Tracking</h3>
               <p>
-                Het forum gebruikt cookies voor functionaliteit en analytics. Zie ons <a href="/cookies" className="text-primary-600 dark:text-primary-400 hover:underline">Cookiebeleid</a> voor details.
+                Het forum gebruikt cookies voor functionaliteit en analytics. Zie ons <Link href="/cookies" className="text-primary-600 dark:text-primary-400 hover:underline">Cookiebeleid</Link> voor details.
               </p>
             </section>
 
@@ -355,11 +356,11 @@ export function ForumDisclaimerClient() {
 
               <h3>Gerelateerde Documenten</h3>
               <ul>
-                <li><a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> - Community guidelines</li>
-                <li><a href="/moderatie-beleid" className="text-primary-600 dark:text-primary-400 hover:underline">Moderatiebeleid</a> - Moderatie procedures</li>
-                <li><a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</a> - Gegevensbescherming</li>
-                <li><a href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</a> - Servicevoorwaarden</li>
-                <li><a href="/disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Disclaimer</a> - Website disclaimer</li>
+                <li><Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> - Community guidelines</li>
+                <li><Link href="/moderatie-beleid" className="text-primary-600 dark:text-primary-400 hover:underline">Moderatiebeleid</Link> - Moderatie procedures</li>
+                <li><Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</Link> - Gegevensbescherming</li>
+                <li><Link href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</Link> - Servicevoorwaarden</li>
+                <li><Link href="/disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Disclaimer</Link> - Website disclaimer</li>
               </ul>
             </section>
 

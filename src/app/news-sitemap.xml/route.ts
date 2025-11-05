@@ -10,7 +10,7 @@ export async function GET() {
   try {
     // Fetch all published articles from Firestore
     const articlesSnapshot = await adminFirestore
-      .collection("news")
+      .collection("ai_news")
       .orderBy("publishedAt", "desc")
       .limit(1000) // Google News accepts max 1000 articles
       .get();

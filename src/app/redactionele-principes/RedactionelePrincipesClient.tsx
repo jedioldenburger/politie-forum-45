@@ -3,6 +3,7 @@
 import AuthModal from '@/components/AuthModal';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function RedactionelePrincipesClient() {
@@ -44,7 +45,7 @@ export function RedactionelePrincipesClient() {
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <li><a href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</a></li>
+              <li><Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</Link></li>
               <li><span className="mx-2">/</span></li>
               <li className="text-gray-900 dark:text-gray-100">Redactionele Principes</li>
             </ol>
@@ -82,7 +83,7 @@ export function RedactionelePrincipesClient() {
               <ul>
                 <li><strong>Verificatie:</strong> Elk feit wordt geverifieerd met minimaal twee onafhankelijke bronnen</li>
                 <li><strong>Bronkwaliteit:</strong> We prioriteren primaire bronnen (officiële documenten, directe interviews)</li>
-                <li><strong>Correcties:</strong> Fouten worden onmiddellijk erkend en gecorrigeerd (zie <a href="/correcties" className="text-primary-600 dark:text-primary-400 hover:underline">Correcties</a>)</li>
+                <li><strong>Correcties:</strong> Fouten worden onmiddellijk erkend en gecorrigeerd (zie <Link href="/correcties" className="text-primary-600 dark:text-primary-400 hover:underline">Correcties</Link>)</li>
                 <li><strong>Context:</strong> Feiten worden in hun volledige context gepresenteerd</li>
                 <li><strong>Transparantie:</strong> Onduidelijkheden of onzekerheden worden expliciet vermeld</li>
               </ul>
@@ -93,7 +94,7 @@ export function RedactionelePrincipesClient() {
               </p>
               <ul>
                 <li><strong>Redactionele autonomie:</strong> Geen externe partij heeft invloed op onze redactionele beslissingen</li>
-                <li><strong>Financiële transparantie:</strong> Onze financieringsbronnen zijn openbaar (zie <a href="/eigendom" className="text-primary-600 dark:text-primary-400 hover:underline">Eigendom</a>)</li>
+                <li><strong>Financiële transparantie:</strong> Onze financieringsbronnen zijn openbaar (zie <Link href="/eigendom" className="text-primary-600 dark:text-primary-400 hover:underline">Eigendom</Link>)</li>
                 <li><strong>Geen belangenconflicten:</strong> Redacteuren vermelden persoonlijke belangen in verhalen</li>
                 <li><strong>Advertenties gescheiden:</strong> Commerciële content wordt duidelijk gelabeld</li>
               </ul>
@@ -298,7 +299,7 @@ export function RedactionelePrincipesClient() {
                 <li><strong>Onafhankelijk eigendom:</strong> Geen politieke partijen of commerciële belangen als eigenaar</li>
                 <li><strong>Redactioneel statuut:</strong> Beschermt redactie tegen externe inmenging</li>
                 <li><strong>Firewall:</strong> Strikte scheiding tussen commercie en redactie</li>
-                <li><strong>Transparantie:</strong> Volledige eigendomsstructuur openbaar (zie <a href="/eigendom" className="text-primary-600 dark:text-primary-400 hover:underline">Eigendom</a>)</li>
+                <li><strong>Transparantie:</strong> Volledige eigendomsstructuur openbaar (zie <Link href="/eigendom" className="text-primary-600 dark:text-primary-400 hover:underline">Eigendom</Link>)</li>
               </ul>
 
               <h3>Financieringsmodel</h3>
@@ -326,14 +327,14 @@ export function RedactionelePrincipesClient() {
               <h3>Forum Moderatie</h3>
               <ul>
                 <li><strong>Scheiding:</strong> Forum moderatie is gescheiden van redactie</li>
-                <li><strong>Transparante regels:</strong> Duidelijke <a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> en <a href="/moderatie-beleid" className="text-primary-600 dark:text-primary-400 hover:underline">Moderatiebeleid</a></li>
+                <li><strong>Transparante regels:</strong> Duidelijke <Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> en <Link href="/moderatie-beleid" className="text-primary-600 dark:text-primary-400 hover:underline">Moderatiebeleid</Link></li>
                 <li><strong>Geen censuur:</strong> We modereren alleen illegale/beledigende content, niet onpopulaire meningen</li>
                 <li><strong>Appeal proces:</strong> Gebruikers kunnen moderatiebeslissingen aanvechten</li>
               </ul>
 
               <h3>User-Generated Content Standaarden</h3>
               <ul>
-                <li><strong>Disclaimer:</strong> Duidelijke <a href="/forum-disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Forum Disclaimer</a> over user content</li>
+                <li><strong>Disclaimer:</strong> Duidelijke <Link href="/forum-disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Forum Disclaimer</Link> over user content</li>
                 <li><strong>Fact-checking encouragement:</strong> We moedigen gebruikers aan om bronnen te citeren</li>
                 <li><strong>Misinfo reporting:</strong> Makkelijk systeem om misinformatie te rapporteren</li>
                 <li><strong>Expert engagement:</strong> Verified badges voor experts in het veld</li>
@@ -392,11 +393,11 @@ export function RedactionelePrincipesClient() {
 
               <h3>Gerelateerde Documenten</h3>
               <ul>
-                <li><a href="/feitencontrole" className="text-primary-600 dark:text-primary-400 hover:underline">Feitencontrole</a> - Onze fact-checking methodologie</li>
-                <li><a href="/correcties" className="text-primary-600 dark:text-primary-400 hover:underline">Correcties</a> - Publieke correctiepagina</li>
-                <li><a href="/eigendom" className="text-primary-600 dark:text-primary-400 hover:underline">Eigendom</a> - Eigendomsstructuur en financiering</li>
-                <li><a href="/over" className="text-primary-600 dark:text-primary-400 hover:underline">Over Ons</a> - Team en missie</li>
-                <li><a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> - Community guidelines</li>
+                <li><Link href="/feitencontrole" className="text-primary-600 dark:text-primary-400 hover:underline">Feitencontrole</Link> - Onze fact-checking methodologie</li>
+                <li><Link href="/correcties" className="text-primary-600 dark:text-primary-400 hover:underline">Correcties</Link> - Publieke correctiepagina</li>
+                <li><Link href="/eigendom" className="text-primary-600 dark:text-primary-400 hover:underline">Eigendom</Link> - Eigendomsstructuur en financiering</li>
+                <li><Link href="/over" className="text-primary-600 dark:text-primary-400 hover:underline">Over Ons</Link> - Team en missie</li>
+                <li><Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> - Community guidelines</li>
               </ul>
             </section>
 

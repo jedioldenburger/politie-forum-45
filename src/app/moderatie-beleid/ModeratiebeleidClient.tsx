@@ -3,6 +3,7 @@
 import AuthModal from '@/components/AuthModal';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function ModeratiebeleidClient() {
@@ -44,7 +45,7 @@ export function ModeratiebeleidClient() {
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <li><a href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</a></li>
+              <li><Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</Link></li>
               <li><span className="mx-2">/</span></li>
               <li className="text-gray-900 dark:text-gray-100">Moderatiebeleid</li>
             </ol>
@@ -65,14 +66,14 @@ export function ModeratiebeleidClient() {
             <div className="my-6 p-4 bg-primary-50 dark:bg-primary-900/20 border-l-4 border-primary-500 rounded-r">
               <p className="font-semibold text-primary-900 dark:text-primary-100">💡 Moderatie Filosofie</p>
               <p className="mt-2 text-primary-800 dark:text-primary-200">
-                We geloven in <strong>lichte moderatie met duidelijke grenzen</strong>. We grijpen alleen in bij schendingen van onze <a href="/gebruikersregels" className="hover:underline">Gebruikersregels</a>. Onze moderatoren zijn getraind om consistent, fair en transparant te handelen. We waarderen vrije meningsuiting, maar niet ten koste van veiligheid en respect.
+                We geloven in <strong>lichte moderatie met duidelijke grenzen</strong>. We grijpen alleen in bij schendingen van onze <Link href="/gebruikersregels" className="hover:underline">Gebruikersregels</Link>. Onze moderatoren zijn getraind om consistent, fair en transparant te handelen. We waarderen vrije meningsuiting, maar niet ten koste van veiligheid en respect.
               </p>
             </div>
 
             <section>
               <h2>1. Moderatie Criteria</h2>
               <p>
-                Content wordt gemodereerd op basis van objectieve criteria die zijn vastgelegd in onze <a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a>. Moderatoren gebruiken deze criteria als leidraad voor hun beslissingen.
+                Content wordt gemodereerd op basis van objectieve criteria die zijn vastgelegd in onze <Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link>. Moderatoren gebruiken deze criteria als leidraad voor hun beslissingen.
               </p>
 
               <h3>Primaire Moderatie Redenen</h3>
@@ -465,10 +466,10 @@ export function ModeratiebeleidClient() {
 
               <h3>Gerelateerde Documenten</h3>
               <ul>
-                <li><a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> - Community guidelines</li>
-                <li><a href="/forum-disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Forum Disclaimer</a> - Juridische disclaimer</li>
-                <li><a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</a> - Gegevensbescherming</li>
-                <li><a href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</a> - Servicevoorwaarden</li>
+                <li><Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> - Community guidelines</li>
+                <li><Link href="/forum-disclaimer" className="text-primary-600 dark:text-primary-400 hover:underline">Forum Disclaimer</Link> - Juridische disclaimer</li>
+                <li><Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</Link> - Gegevensbescherming</li>
+                <li><Link href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</Link> - Servicevoorwaarden</li>
               </ul>
             </section>
 

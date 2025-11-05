@@ -3,6 +3,7 @@
 import AuthModal from '@/components/AuthModal';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import Link from 'next/link';
 import { useState } from 'react';
 
 export function ToegankelijkheidClient() {
@@ -16,23 +17,45 @@ export function ToegankelijkheidClient() {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            '@id': 'https://politie-forum.nl/toegankelijkheid#webpage',
-            url: 'https://politie-forum.nl/toegankelijkheid',
-            name: 'Toegankelijkheidsverklaring',
-            description: 'Onze toegankelijkheidsverklaring beschrijft WCAG 2.1 Level AA compliance en beschikbare toegankelijkheidsfuncties.',
-            isPartOf: {
-              '@id': 'https://politie-forum.nl/#website',
-            },
-            breadcrumb: {
-              '@id': 'https://politie-forum.nl/toegankelijkheid#breadcrumb',
-            },
-            inLanguage: 'nl-NL',
-            datePublished: '2025-10-15T00:00:00+00:00',
-            dateModified: '2025-10-15T00:00:00+00:00',
-            publisher: {
-              '@id': 'https://politie-forum.nl/#org',
-            },
+            '@graph': [
+              {
+                '@type': 'WebPage',
+                '@id': 'https://politie-forum.nl/toegankelijkheid#webpage',
+                url: 'https://politie-forum.nl/toegankelijkheid',
+                name: 'Toegankelijkheidsverklaring',
+                description: 'Onze toegankelijkheidsverklaring beschrijft WCAG 2.1 Level AA compliance en beschikbare toegankelijkheidsfuncties.',
+                isPartOf: {
+                  '@id': 'https://politie-forum.nl/#website',
+                },
+                breadcrumb: {
+                  '@id': 'https://politie-forum.nl/toegankelijkheid#breadcrumb',
+                },
+                inLanguage: 'nl-NL',
+                datePublished: '2025-10-15T00:00:00+00:00',
+                dateModified: '2025-10-15T00:00:00+00:00',
+                publisher: {
+                  '@id': 'https://politie-forum.nl/#org',
+                },
+              },
+              {
+                '@type': 'BreadcrumbList',
+                '@id': 'https://politie-forum.nl/toegankelijkheid#breadcrumb',
+                itemListElement: [
+                  {
+                    '@type': 'ListItem',
+                    position: 1,
+                    name: 'Home',
+                    item: 'https://politie-forum.nl/',
+                  },
+                  {
+                    '@type': 'ListItem',
+                    position: 2,
+                    name: 'Toegankelijkheid',
+                    item: 'https://politie-forum.nl/toegankelijkheid',
+                  },
+                ],
+              },
+            ],
           }),
         }}
       />
@@ -44,7 +67,7 @@ export function ToegankelijkheidClient() {
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2 text-gray-600 dark:text-gray-400">
-              <li><a href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</a></li>
+              <li><Link href="/" className="hover:text-primary-600 dark:hover:text-primary-400">Home</Link></li>
               <li><span className="mx-2">/</span></li>
               <li className="text-gray-900 dark:text-gray-100">Toegankelijkheid</li>
             </ol>
@@ -234,7 +257,7 @@ export function ToegankelijkheidClient() {
               <div className="my-6 p-4 bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 rounded-r">
                 <p className="font-semibold text-red-900 dark:text-red-100">⚠️ User-Generated Content</p>
                 <p className="mt-2 text-red-800 dark:text-red-200">
-                  Content die door gebruikers wordt geplaatst (forum posts, comments) kan toegankelijkheidsproblemen bevatten die buiten onze directe controle zijn. We moedigen gebruikers aan om toegankelijke content te plaatsen (alt text voor afbeeldingen, duidelijke link tekst, etc.) en bieden richtlijnen in onze <a href="/gebruikersregels" className="hover:underline">Gebruikersregels</a>.
+                  Content die door gebruikers wordt geplaatst (forum posts, comments) kan toegankelijkheidsproblemen bevatten die buiten onze directe controle zijn. We moedigen gebruikers aan om toegankelijke content te plaatsen (alt text voor afbeeldingen, duidelijke link tekst, etc.) en bieden richtlijnen in onze <Link href="/gebruikersregels" className="hover:underline">Gebruikersregels</Link>.
                 </p>
               </div>
             </section>
@@ -421,9 +444,9 @@ export function ToegankelijkheidClient() {
 
               <h3>Interne Documenten</h3>
               <ul>
-                <li><a href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</a> - Community guidelines inclusief toegankelijke content tips</li>
-                <li><a href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</a> - Hoe we assistive technology data beschermen</li>
-                <li><a href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</a> - Servicevoorwaarden</li>
+                <li><Link href="/gebruikersregels" className="text-primary-600 dark:text-primary-400 hover:underline">Gebruikersregels</Link> - Community guidelines inclusief toegankelijke content tips</li>
+                <li><Link href="/privacy" className="text-primary-600 dark:text-primary-400 hover:underline">Privacyverklaring</Link> - Hoe we assistive technology data beschermen</li>
+                <li><Link href="/voorwaarden" className="text-primary-600 dark:text-primary-400 hover:underline">Algemene Voorwaarden</Link> - Servicevoorwaarden</li>
               </ul>
             </section>
 

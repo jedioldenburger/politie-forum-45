@@ -1,178 +1,245 @@
-// Main sitemap - Static website pages only (no news articles)
 import { MetadataRoute } from "next";
 
-export const revalidate = 86400; // Revalidate once per day
+export const revalidate = 3600; // Revalidate every hour
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://politie-forum.nl";
-  const now = new Date();
 
-  return [
-    // Homepage
+  // Static pages - Core (12 pages)
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1.0,
     },
-    // Core pages
     {
       url: `${baseUrl}/nieuws`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.9,
     },
     {
       url: `${baseUrl}/forum`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/categorieen`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.8,
     },
     {
       url: `${baseUrl}/crime-map-nederland`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/over`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
-    },
-    {
       url: `${baseUrl}/redactie`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${baseUrl}/contact`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.6,
+      priority: 0.5,
     },
     {
       url: `${baseUrl}/leden`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "weekly",
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/faq`,
-      lastModified: now,
-      changeFrequency: "monthly",
       priority: 0.6,
     },
     {
       url: `${baseUrl}/profiel`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.5,
     },
-    // Legal pages
+    {
+      url: `${baseUrl}/login`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/register`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.4,
+    },
+    {
+      url: `${baseUrl}/admin`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.2,
+    },
+    // Legal & Privacy (9 pages)
     {
       url: `${baseUrl}/privacy`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/voorwaarden`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/cookies`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/disclaimer`,
-      lastModified: now,
-      changeFrequency: "yearly",
-      priority: 0.3,
-    },
-    {
-      url: `${baseUrl}/toegankelijkheid`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/nieuws-disclaimer`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/forum-disclaimer`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${baseUrl}/gebruikersregels`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.4,
     },
     {
       url: `${baseUrl}/moderatie-beleid`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.4,
     },
-    // Editorial pages
+    {
+      url: `${baseUrl}/toegankelijkheid`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+    // Journalistiek (3 pages)
     {
       url: `${baseUrl}/redactionele-principes`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.4,
     },
     {
       url: `${baseUrl}/feitencontrole`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.4,
     },
     {
       url: `${baseUrl}/correcties`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "weekly",
+      priority: 0.5,
+    },
+    // Bedrijfsinformatie (2 pages)
+    {
+      url: `${baseUrl}/over`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.5,
     },
     {
       url: `${baseUrl}/eigendom`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "yearly",
       priority: 0.3,
     },
-    // Categories
-    ...['advocaten-rechtbanken', 'binnenland', 'burgerparticipatie-wijkveiligheid', 
-        'community-cafe-off-topic', 'criminaliteit-opsporing', 'cybersecurity-digitale-veiligheid',
-        'internationale-politie-europol', 'publieke-veiligheid-maatschappij', 'rechtspraak-beleid',
-        'specialisaties-eenheden', 'technologie-middelen', 'werving-sollicitatie'].map((slug) => ({
-      url: `${baseUrl}/categorie/${slug}`,
-      lastModified: now,
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    })),
-    // Popular tags
-    ...['politie', 'veiligheid', 'criminaliteit', 'nieuws', 'actueel', 'nederland',
-        'rechtspraak', 'cybersecurity', 'opsporing', 'advocatuur'].map((slug) => ({
-      url: `${baseUrl}/tag/${slug}`,
-      lastModified: now,
-      changeFrequency: slug === 'nieuws' || slug === 'actueel' ? "daily" as const : "weekly" as const,
+    // Contact (3 pages)
+    {
+      url: `${baseUrl}/tips`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
       priority: 0.6,
-    })),
+    },
+    {
+      url: `${baseUrl}/pers`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${baseUrl}/faq`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.6,
+    },
   ];
+
+  // Categories (12 pages)
+  const categoryPages: MetadataRoute.Sitemap = [
+    'advocaten-rechtbanken',
+    'binnenland',
+    'burgerparticipatie-wijkveiligheid',
+    'community-cafe-off-topic',
+    'criminaliteit-opsporing',
+    'cybersecurity-digitale-veiligheid',
+    'internationale-politie-europol',
+    'politiewerk-carriere',
+    'publieke-veiligheid-maatschappij',
+    'rechtspraak-beleid',
+    'specialisaties-eenheden',
+    'technologie-middelen',
+    'werving-sollicitatie',
+  ].map((slug) => ({
+    url: `${baseUrl}/categorie/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
+  // Tags (18 pages) - All tags from generateStaticParams
+  const tagPages: MetadataRoute.Sitemap = [
+    'actueel',
+    'nederland',
+    'nieuws',
+    'politie',
+    'veiligheid',
+    'criminaliteit',
+    'opsporing',
+    'rechtspraak',
+    'cybercrime',
+    'cybersecurity',
+    'verkeer',
+    'privacy',
+    'advocatuur',
+    'drugs',
+    'openbaar-ministerie',
+    'geweld',
+    'terrorisme',
+    'wijkveiligheid',
+  ].map((slug) => ({
+    url: `${baseUrl}/tag/${slug}`,
+    lastModified: new Date(),
+    changeFrequency: ['politie', 'veiligheid', 'criminaliteit', 'actueel', 'nieuws'].includes(slug) 
+      ? "daily" as const 
+      : "weekly" as const,
+    priority: 0.6,
+  }));
+
+  // NOTE: Article URLs (/nieuws/[slug]) are NOT included here
+  // They are served via /news-sitemap.xml for Google News optimization
+  
+  return [...staticPages, ...categoryPages, ...tagPages];
 }

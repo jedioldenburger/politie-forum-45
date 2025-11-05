@@ -216,24 +216,14 @@ function mapAdminToArticle(slug: string, a: AdminFirebaseArticle): Article {
 // This ensures deleted articles don't show on homepage
 export async function getLatestArticles(limit = 3): Promise<Article[]> {
   try {
-    console.log(`[getLatestArticles] Fetching from /ai_news (AI-enhanced) with fallback to /news`);
+    console.log(`[getLatestArticles] Fetching from /ai_news (AI-enhanced)`);
 
-    // Try AI-enhanced collection first
-    let snapshot = await adminFirestore
+    // Fetch from AI-enhanced collection only
+    const snapshot = await adminFirestore
       .collection("ai_news")
       .orderBy("publishedAt", "desc")
       .limit(limit)
       .get();
-
-    // Fallback to original /news collection if ai_news is empty
-    if (snapshot.empty) {
-      console.log("[getLatestArticles] /ai_news empty, falling back to /news");
-      snapshot = await adminFirestore
-        .collection("news")
-        .orderBy("publishedAt", "desc")
-        .limit(limit)
-        .get();
-    }
 
     console.log(`[getLatestArticles] Query successful. Snapshot.size=${snapshot.size}`);
 
@@ -276,11 +266,8 @@ export async function getLatestArticles(limit = 3): Promise<Article[]> {
 
 export async function getAllArticleSlugs(): Promise<string[]> {
   try {
-    // Prioritize AI-enhanced articles, fallback to original
-    let snapshot = await adminFirestore.collection("ai_news").get();
-    if (snapshot.empty) {
-      snapshot = await adminFirestore.collection("news").get();
-    }
+    // Fetch AI-enhanced articles only
+    const snapshot = await adminFirestore.collection("ai_news").get();
     return snapshot.empty ? [] : snapshot.docs.map((doc) => doc.id);
   } catch (e) {
     console.error("Error getAllArticleSlugs:", e);
@@ -318,12 +305,8 @@ export async function getServerArticle(slug: string): Promise<Article | null> {
 
 export async function getServerArticles(): Promise<Article[]> {
   try {
-    // Prioritize AI-enhanced collection
-    let snapshot = await adminFirestore.collection("ai_news").get();
-    if (snapshot.empty) {
-      console.log("[getServerArticles] /ai_news empty, using /news");
-      snapshot = await adminFirestore.collection("news").get();
-    }
+    // Fetch AI-enhanced collection only
+    const snapshot = await adminFirestore.collection("ai_news").get();
 
     if (snapshot.empty) return [];
 
@@ -371,20 +354,11 @@ export async function getRelatedArticles(
 ): Promise<Article[]> {
   try {
     // Use AI-enhanced collection for better semantic matching
-    let snapshot = await adminFirestore
+    const snapshot = await adminFirestore
       .collection("ai_news")
       .orderBy("publishedAt", "desc")
       .limit(20)
       .get();
-
-    // Fallback to /news if ai_news is empty
-    if (snapshot.empty) {
-      snapshot = await adminFirestore
-        .collection("news")
-        .orderBy("publishedAt", "desc")
-        .limit(20)
-        .get();
-    }
 
     if (snapshot.empty) return [];
 

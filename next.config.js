@@ -1,208 +1,278 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enforce React's strict checks in development
   reactStrictMode: true,
-
-  // Hide the "X-Powered-By: Next.js" header for security
   poweredByHeader: false,
-
-  // ✅ Enable trailing slash for SEO-friendly URLs
   trailingSlash: true,
-
-  // ✅ Turbopack configuration for faster builds
-  turbopack: {
-    resolveAlias: {
-      canvas: './empty-module.ts',
-    },
-  },
-
-  // ✅ Output optimization
   compress: true,
   generateEtags: true,
-  productionBrowserSourceMaps: false,
-  // Note: swcMinify is enabled by default in Next.js 15+
 
-  // ✅ Image Optimization
   images: {
     formats: ['image/avif', 'image/webp'],
-    minimumCacheTTL: 31536000, // 1 year cache for static images
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-    qualities: [75, 85, 90, 100], // ✅ Explicitly configure quality values for Next.js 16
-    dangerouslyAllowSVG: true,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    unoptimized: false,
-    // ✅ Modern remotePatterns (replaces deprecated domains)
+    minimumCacheTTL: 31536000,
     remotePatterns: [
-      // Local dev
-      { protocol: 'http', hostname: 'localhost' },
-      { protocol: 'https', hostname: 'localhost' },
-
-      // Firebase hosting
-      { protocol: 'https', hostname: '*.firebaseapp.com' },
-      { protocol: 'https', hostname: '*.web.app' },
-
-      // Production domains
       { protocol: 'https', hostname: 'politie-forum.nl' },
-      { protocol: 'https', hostname: 'www.politie-forum.nl' },
-
-      // Vercel deployments
       { protocol: 'https', hostname: '*.vercel.app' },
-
-      // Firebase Storage
-      { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
-
-      // External CDN sources
-      { protocol: 'https', hostname: 'lh3.googleusercontent.com' },
-      { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
-      { protocol: 'https', hostname: 'cdn.discordapp.com' },
-      { protocol: 'https', hostname: 'i.imgur.com' },
-      { protocol: 'https', hostname: 'cdn.pixabay.com' },
-      { protocol: 'https', hostname: 'images.unsplash.com' },
+      { protocol: 'https', hostname: '*.googleusercontent.com' },
+      { protocol: 'https', hostname: '*.unsplash.com' },
     ],
   },
 
-  // ✅ Ignore build-time linting & TS errors during development
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  // ✅ Compiler optimizations
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production' ? {
-      exclude: ['error', 'warn'], // Keep console.error and console.warn in production
-    } : false,
-    // Remove React properties and debug info in production (includes local paths cleanup)
+    removeConsole:
+      process.env.NODE_ENV === 'production'
+        ? { exclude: ['error', 'warn'] }
+        : false,
     reactRemoveProperties: process.env.NODE_ENV === 'production',
   },
 
-  // ✅ Experimental optimizations
-  experimental: {
-    optimizePackageImports: ['lucide-react', 'firebase/app', 'firebase/auth', 'firebase/database'],
-    // Note: optimizeCss requires 'critters' module - disabled to prevent build errors
-    // optimizeCss: true,
-    // Enable granular chunks for better caching
-    optimizeServerReact: true,
-  },
-
-  // ✅ Transpile only for truly necessary legacy browsers (removes polyfills for modern browsers)
-  transpilePackages: [],
-
-  // ✅ Headers: Optimized for Google SERP, Bing, Google News, and Google Discover
   async headers() {
-    const isDevelopment = process.env.NODE_ENV === 'development';
-    
+    const isDev = process.env.NODE_ENV === 'development';
+
     return [
       {
-        source: "/(.*)",
+        source: '/(.*)',
         headers: [
-          // Development: no cache | Production: 5min Edge cache with stale-while-revalidate
-          // Optimized for: Googlebot, Bingbot, Google News crawler, Google Discover
-          { 
-            key: "Cache-Control", 
-            value: isDevelopment 
-              ? "no-store, no-cache, must-revalidate" 
-              : "public, s-maxage=300, stale-while-revalidate=300, stale-if-error=86400" 
-          },
-          
-          // Vary header: Important for Google Discover (mobile-first) and Bing caching
-          { key: "Vary", value: "Accept-Encoding, User-Agent" },
-
-          // Security headers (Lowest safe settings)
-          { key: "X-Frame-Options", value: "SAMEORIGIN" }, // Allows framing by your own site
-          { key: "X-Content-Type-Options", value: "nosniff" },
-          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-          { key: "Permissions-Policy", value: "geolocation=(), microphone=(), camera=()" },
-
-          // HSTS: Force HTTPS for 1 year
-          { key: "Strict-Transport-Security", value: "max-age=31536000; includeSubDomains; preload" },
-
-          // X-Robots-Tag: SEO control for all pages (default: index, follow)
-          { key: "X-Robots-Tag", value: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" },
-
-          // CSP: Balanced security - allows Firebase/GTM while protecting against XSS
-          // Note: 'unsafe-inline' required for React hydration, 'unsafe-eval' for Firebase SDK
-          // Production: Consider implementing nonce-based CSP for stricter security
           {
-            key: "Content-Security-Policy",
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.firebaseapp.com https://*.googleapis.com",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "img-src 'self' data: blob: https:",
-              "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https: wss: https://*.firebaseio.com https://*.googleapis.com https://*.google-analytics.com",
-              "frame-src 'self' https://accounts.google.com",
-              "object-src 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-              "frame-ancestors 'self'",
-              "upgrade-insecure-requests",
-            ].join("; ")
+            key: 'Cache-Control',
+            value: isDev
+              ? 'no-store, no-cache, must-revalidate'
+              : 'public, s-maxage=300, stale-while-revalidate=600, stale-if-error=86400',
           },
+          { key: 'Vary', value: 'Accept-Encoding, User-Agent' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'geolocation=(), microphone=(), camera=()' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains; preload',
+          },
+          {
+            key: 'X-Robots-Tag',
+            value: 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1',
+          },
+          {
+            key: 'Content-Security-Policy',
+            value: isDev 
+              ? [
+                  // Development: Relaxed CSP for hot reload
+                  "default-src 'self'",
+                  "worker-src 'self' blob:",
+                  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://*.firebaseapp.com https://*.googleapis.com https://apis.google.com",
+                  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                  "connect-src 'self' blob: data: https: wss: https://*.firebaseio.com https://*.googleapis.com https://*.google-analytics.com",
+                  "img-src 'self' data: blob: https:",
+                  "font-src 'self' data: https://fonts.gstatic.com",
+                  "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com",
+                  "object-src 'none'",
+                  "base-uri 'self'",
+                  "form-action 'self'",
+                  "frame-ancestors 'self'",
+                ].join('; ')
+              : [
+                  // Production: Balanced CSP for YMYL trust (removed 'unsafe-eval')
+                  "default-src 'self'",
+                  "worker-src 'self' blob:",
+                  "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://*.firebaseapp.com https://*.googleapis.com https://apis.google.com",
+                  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+                  "connect-src 'self' blob: data: https: wss: https://*.firebaseio.com https://*.googleapis.com https://*.google-analytics.com",
+                  "img-src 'self' data: blob: https:",
+                  "font-src 'self' data: https://fonts.gstatic.com",
+                  "frame-src 'self' https://accounts.google.com https://*.firebaseapp.com",
+                  "object-src 'none'",
+                  "base-uri 'self'",
+                  "form-action 'self'",
+                  "frame-ancestors 'self'",
+                  "upgrade-insecure-requests",
+                ].join('; '),
+          },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'cross-origin' },
+        ],
+      },
 
-          // COOP for Firebase Auth popups
-          { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
-          { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+      // Sitemap & feeds — maximale toegankelijkheid
+      {
+        source: '/(sitemap.xml|news-sitemap.xml|feed.xml|atom.xml|news-feed.xml)',
+        headers: [
+          { key: 'Content-Type', value: 'application/xml; charset=utf-8' },
+          { key: 'Cache-Control', value: 'public, s-maxage=600, stale-while-revalidate=600' },
+          { key: 'X-Allow-Crawler', value: 'true' },
+          { key: 'X-Robots-Tag', value: 'index, follow' },
         ],
       },
-      // News articles: Google News optimization
+
+      // Nieuwsartikelen
       {
-        source: "/nieuws/:slug*",
+        source: '/nieuws/:slug*',
         headers: [
-          { key: "X-Robots-Tag", value: "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1, noarchive" },
-          { key: "Cache-Control", value: "public, s-maxage=600, stale-while-revalidate=300" },
+          {
+            key: 'X-Robots-Tag',
+            value:
+              'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1, noarchive',
+          },
+          { key: 'Cache-Control', value: 'public, s-maxage=900, stale-while-revalidate=600' },
         ],
       },
-      // Admin & API routes: No indexing
+
+      // Admin & API
       {
-        source: "/(admin|api)/:path*",
+        source: '/(admin|api)/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow' }],
+      },
+
+      // Login & register
+      {
+        source: '/(login|register)/:path*',
         headers: [
-          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: 'X-Robots-Tag', value: 'noindex, follow' },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin-allow-popups' },
         ],
       },
-      // Auth pages: No indexing
+
+      // Assets caching
       {
-        source: "/(login|register)/:path*",
-        headers: [
-          { key: "X-Robots-Tag", value: "noindex, follow" },
-        ],
-      },
-      // Static assets: Long-term immutable caching
-      {
-        source: "/:path*.(js|css|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)",
-        headers: [
-          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
-        ],
+        source: '/:path*.(js|css|jpg|jpeg|png|gif|ico|svg|woff|woff2|ttf|eot)',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
       },
     ];
   },
 
-  // ✅ SEO-friendly redirects
+  // ✅ Redirects for old/incorrect URLs
   async redirects() {
     return [
-      // www → non-www redirect
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "host",
-            value: "www.politie-forum.nl",
-          },
-        ],
-        destination: "https://politie-forum.nl/:path*",
-        permanent: true,
-      },
-      // Vercel preview domain → production domain
-      {
-        source: "/:path*",
-        has: [
-          {
-            type: "host",
-            value: "politie-forum-45.vercel.app",
-          },
-        ],
-        destination: "https://politie-forum.nl/:path*",
-        statusCode: 301,
-      },
+      // EN language (not supported)
+      { source: '/en/:path*', destination: '/', permanent: true },
+      
+      // /tip → /tips (singular to plural)
+      { source: '/tip', destination: '/tips', permanent: true },
+      
+      // /categorieen variants → canonical (but exclude exact /categorieen to prevent loop)
+      { source: '/categorieën', destination: '/categorieen', permanent: true },
+      
+      // Old URL patterns → correct ones
+      { source: '/forum-rules', destination: '/gebruikersregels', permanent: true },
+      { source: '/forum-rules/', destination: '/gebruikersregels', permanent: true },
+      { source: '/terms', destination: '/voorwaarden', permanent: true },
+      { source: '/terms-of-service', destination: '/voorwaarden', permanent: true },
+      { source: '/privacy-policy', destination: '/privacy', permanent: true },
+      { source: '/cookie-policy', destination: '/cookies', permanent: true },
+      { source: '/accessibility', destination: '/toegankelijkheid', permanent: true },
+      { source: '/accessibility/', destination: '/toegankelijkheid', permanent: true },
+      { source: '/search', destination: '/zoeken', permanent: true },
+      { source: '/search/', destination: '/zoeken', permanent: true },
+      
+      // Non-existent features → homepage
+      { source: '/opsporingen', destination: '/', permanent: false },
+      { source: '/opsporingen/', destination: '/', permanent: false },
+      { source: '/vermissingen', destination: '/', permanent: false },
+      { source: '/vermissingen/', destination: '/', permanent: false },
+      { source: '/events/:path*', destination: '/', permanent: false },
+      { source: '/popular', destination: '/', permanent: false },
+      { source: '/user/:path*', destination: '/', permanent: false },
+      
+      // AMP pages (not supported)
+      { source: '/article/:path*/amp', destination: '/nieuws/:path*', permanent: true },
+      { source: '/article/:path*/amp/', destination: '/nieuws/:path*', permanent: true },
+      { source: '/article/:path*', destination: '/nieuws/:path*', permanent: true },
+      { source: '/sitemap-amp.xml', destination: '/sitemap.xml', permanent: true },
+      
+      // Old URL formats → new format
+      { source: '/home.html', destination: '/', permanent: true },
+      { source: '/tag/:slug/', destination: '/tag/:slug', permanent: true },
+      { source: '/categorie/:slug/', destination: '/categorie/:slug', permanent: true },
+      
+      // ✅ Google Search Console 404s - Nov 5, 2025
+      
+      // /public/ and development files → homepage
+      { source: '/public/:path*', destination: '/', permanent: true },
+      { source: '/database-seeder.html', destination: '/', permanent: true },
+      { source: '/database-seeder.html/', destination: '/', permanent: true },
+      { source: '/firebase-test.html', destination: '/', permanent: true },
+      { source: '/firebase-test.html/', destination: '/', permanent: true },
+      { source: '/code/:path*', destination: '/', permanent: true },
+      
+      // /forum template variables → homepage
+      { source: '/forum/${section.id}', destination: '/', permanent: true },
+      { source: '/forum/${section.id}/', destination: '/', permanent: true },
+      { source: '/forum/${discussion.slug}', destination: '/', permanent: true },
+      { source: '/forum/${discussion.slug}/', destination: '/', permanent: true },
+      
+      // /forum/threads variants → forum homepage
+      { source: '/forum/threads', destination: '/forum', permanent: true },
+      { source: '/forum/threads/', destination: '/forum', permanent: true },
+      { source: '/forum/threads/:path*', destination: '/forum', permanent: true },
+      
+      // /forum/topics → forum homepage
+      { source: '/forum/topics', destination: '/forum', permanent: true },
+      { source: '/forum/topics/', destination: '/forum', permanent: true },
+      
+      // /forum/aankondigingen → forum homepage
+      { source: '/forum/aankondigingen', destination: '/forum', permanent: true },
+      { source: '/forum/aankondigingen/', destination: '/forum', permanent: true },
+      
+      // /forum/welkom variants → forum homepage
+      { source: '/forum/welkom', destination: '/forum', permanent: true },
+      { source: '/forum/welkom/', destination: '/forum', permanent: true },
+      { source: '/forum/welkom/:path*', destination: '/forum', permanent: true },
+      
+      // /forum/trending → forum homepage
+      { source: '/forum/trending', destination: '/forum', permanent: true },
+      { source: '/forum/trending/', destination: '/forum', permanent: true },
+      
+      // /forum/recente-incidenten → forum homepage
+      { source: '/forum/recente-incidenten', destination: '/forum', permanent: true },
+      { source: '/forum/recente-incidenten/', destination: '/forum', permanent: true },
+      
+      // /forum/juridische-kwesties → forum homepage
+      { source: '/forum/juridische-kwesties', destination: '/forum', permanent: true },
+      { source: '/forum/juridische-kwesties/', destination: '/forum', permanent: true },
+      
+      // /forum with region parameter → homepage
+      { source: '/forum', has: [{ type: 'query', key: 'region' }], destination: '/', permanent: true },
+      
+      // /forum/noord-nederland variants → forum homepage
+      { source: '/forum/noord-nederland/:path*', destination: '/forum', permanent: true },
+      
+      // /category variants → /categorie
+      { source: '/category', destination: '/categorieen', permanent: true },
+      { source: '/category/', destination: '/categorieen', permanent: true },
+      { source: '/category/:path*', destination: '/categorieen', permanent: true },
+      
+      // /article variants → /nieuws
+      { source: '/article', destination: '/nieuws', permanent: true },
+      { source: '/article/', destination: '/nieuws', permanent: true },
+      { source: '/article/:slug', destination: '/nieuws/:slug', permanent: true },
+      { source: '/article/:slug/', destination: '/nieuws/:slug', permanent: true },
+      { source: '/article/:slug/amp.html', destination: '/nieuws/:slug', permanent: true },
+      { source: '/article/:slug/amp.html/', destination: '/nieuws/:slug', permanent: true },
+      
+      // /nieuws without trailing slash variants
+      { source: '/nieuws/:slug([^/]+)$', destination: '/nieuws/:slug', permanent: true },
+      
+      // /over-ons variants → correct pages
+      { source: '/over-ons/correcties', destination: '/correcties', permanent: true },
+      { source: '/over-ons/correcties/', destination: '/correcties', permanent: true },
+      { source: '/over-ons/redactiebeleid', destination: '/redactionele-principes', permanent: true },
+      { source: '/over-ons/redactiebeleid/', destination: '/redactionele-principes', permanent: true },
+      { source: '/over-ons/financiering', destination: '/eigendom', permanent: true },
+      { source: '/over-ons/financiering/', destination: '/eigendom', permanent: true },
+      
+      // /voorwaarden/ with trailing slash → canonical without
+      { source: '/voorwaarden/', destination: '/voorwaarden', permanent: true },
+      
+      // /user variants → profiel
+      { source: '/user', destination: '/profiel', permanent: true },
+      { source: '/user/', destination: '/profiel', permanent: true },
+      
+      // Query parameter redirects
+      { source: '/', has: [{ type: 'query', key: 'region' }], destination: '/', permanent: true },
+      
+      // /nieuws/verkeersveiligheid variants → nieuws homepage
+      { source: '/nieuws/verkeersveiligheid', destination: '/nieuws', permanent: true },
+      { source: '/nieuws/verkeersveiligheid/', destination: '/nieuws', permanent: true },
     ];
   },
 };

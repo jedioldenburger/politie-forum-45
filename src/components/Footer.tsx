@@ -2,7 +2,8 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="bg-primary-900 text-white mt-16 py-12 border-t-4 border-accent-500">
+    <footer className="bg-primary-900 text-white mt-16 py-12 border-t-4 border-accent-500" aria-labelledby="site-footer">
+      <h2 id="site-footer" className="sr-only">Site Footer</h2>
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div>
@@ -40,12 +41,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" rel="nofollow" className="text-primary-200 hover:text-white transition-colors">
+                <Link href="/privacy" className="text-primary-200 hover:text-white transition-colors">
                   Privacy
                 </Link>
               </li>
               <li>
-                <Link href="/voorwaarden" rel="nofollow" className="text-primary-200 hover:text-white transition-colors">
+                <Link href="/voorwaarden" className="text-primary-200 hover:text-white transition-colors">
                   Voorwaarden
                 </Link>
               </li>

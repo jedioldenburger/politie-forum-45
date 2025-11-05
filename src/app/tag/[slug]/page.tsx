@@ -17,7 +17,15 @@ export async function generateStaticParams() {
     'opsporing',
     'rechtspraak',
     'cybercrime',
+    'cybersecurity',
     'verkeer',
+    'privacy',
+    'advocatuur',
+    'drugs',
+    'openbaar-ministerie',
+    'geweld',
+    'terrorisme',
+    'wijkveiligheid',
   ];
 
   return tags.map((slug) => ({
@@ -66,6 +74,38 @@ const TAG_DATA: Record<string, { name: string; description: string }> = {
   'verkeer': {
     name: 'Verkeer',
     description: 'Verkeershandhaving, verkeersveiligheid en verkeerscriminaliteit.',
+  },
+  'cybersecurity': {
+    name: 'Cybersecurity',
+    description: 'Digitale beveiliging, cyberveiligheid en bescherming tegen digitale dreigingen.',
+  },
+  'privacy': {
+    name: 'Privacy',
+    description: 'Privacy, gegevensbescherming en AVG-wetgeving in relatie tot opsporing en veiligheid.',
+  },
+  'advocatuur': {
+    name: 'Advocatuur',
+    description: 'Juridische bijstand, advocaten en rechtsbijstand in strafzaken.',
+  },
+  'drugs': {
+    name: 'Drugs',
+    description: 'Drugscriminaliteit, drugshandel en opsporingsmethoden bij drugszaken.',
+  },
+  'openbaar-ministerie': {
+    name: 'Openbaar Ministerie',
+    description: 'Het Nederlandse OM, vervolgingsbeslissingen en strafvervolging.',
+  },
+  'geweld': {
+    name: 'Geweld',
+    description: 'Geweldscriminaliteit, geweldsincidenten en aanpak van geweld.',
+  },
+  'terrorisme': {
+    name: 'Terrorisme',
+    description: 'Terrorismebestrijding, radicalisering en nationale veiligheid.',
+  },
+  'wijkveiligheid': {
+    name: 'Wijkveiligheid',
+    description: 'Buurtpreventie, wijkagenten en lokale veiligheidsinitiatieven.',
   },
 };
 

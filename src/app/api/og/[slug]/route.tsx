@@ -62,8 +62,10 @@ export async function GET(
           }}
         >
           {/* Background with overlay */}
+          {/* eslint-disable-next-line @next/next/no-img-element, jsx-a11y/alt-text */}
           <img
             src={bgImage}
+            alt=""
             style={{
               position: "absolute",
               inset: 0,
